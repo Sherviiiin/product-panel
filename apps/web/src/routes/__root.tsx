@@ -1,10 +1,19 @@
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
+import type { QueryClient } from "@tanstack/react-query"
+
+import { HeadContent, Scripts, createRootRouteWithContext } from '@tanstack/react-router'
 
 import appCss from '../styles.css?url'
-
 import '../styles/app.css'
 
-export const Route = createRootRoute({
+import { currentUserQuery } from "@/features/auth/queries/auth.query"
+
+import { Header } from "@/components/layout/header"
+
+interface RouterContext {
+  queryClient: QueryClient
+}
+
+export const Route = createRootRouteWithContext<RouterContext>()({
   head: () => ({
     meta: [
       {
@@ -25,7 +34,14 @@ export const Route = createRootRoute({
       },
     ],
   }),
+  
   shellComponent: RootDocument,
+
+  loader: async ({ context }) => {
+    await context.queryClient.query({
+      ...currentUserQuery(),
+    })
+  },
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
@@ -35,6 +51,8 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
+        <Header/>
+        
         {children}
 
         <Scripts />

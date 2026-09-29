@@ -18,6 +18,27 @@ export const usersRelations = relations(users,
   })
 )
 
+// Relations of "user-roles"
+export const userRolesRelations = relations(userRoles,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [userRoles.userId],
+      references: [users.id],
+    }),
+
+    role: one(roles, {
+      fields: [userRoles.roleId],
+      references: [roles.id],
+    }),
+  }),
+)
+// Relations of "roles"
+export const rolesRelations = relations(roles,
+  ({ many }) => ({
+    users: many(userRoles),
+  }),
+)
+
 // Relations of "user-profiles"
 export const userProfilesRelations = relations(userProfiles,
   ({ one }) => ({
