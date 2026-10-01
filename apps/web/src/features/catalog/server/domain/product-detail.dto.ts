@@ -11,6 +11,10 @@ export interface ProductDetail {
     key: string
     value: string
   }[]
+  categories: {
+    id: number
+    name: string
+  }[]
 
   sellers: {
     id: number

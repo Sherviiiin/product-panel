@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as AuthRegisterRouteImport } from './routes/auth/register'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as ProductsIndexRouteImport } from './routes/products/index'
 import { Route as ProductsIdRouteImport } from './routes/products/$id'
 
@@ -30,6 +31,11 @@ const AuthRegisterRoute = AuthRegisterRouteImport.update({
   path: '/auth/register',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/dashboard/',
+  path: '/dashboard/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProductsIndexRoute = ProductsIndexRouteImport.update({
   id: '/products/',
   path: '/products/',
@@ -46,6 +52,7 @@ export interface FileRoutesByFullPath {
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/products/$id': typeof ProductsIdRoute
+  '/dashboard/': typeof DashboardIndexRoute
   '/products/': typeof ProductsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -53,6 +60,7 @@ export interface FileRoutesByTo {
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/products/$id': typeof ProductsIdRoute
+  '/dashboard': typeof DashboardIndexRoute
   '/products': typeof ProductsIndexRoute
 }
 export interface FileRoutesById {
@@ -61,20 +69,33 @@ export interface FileRoutesById {
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/products/$id': typeof ProductsIdRoute
+  '/dashboard/': typeof DashboardIndexRoute
   '/products/': typeof ProductsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/auth/login' | '/auth/register' | '/products/$id' | '/products/'
+    | '/'
+    | '/auth/login'
+    | '/auth/register'
+    | '/products/$id'
+    | '/dashboard/'
+    | '/products/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth/login' | '/auth/register' | '/products/$id' | '/products'
+  to:
+    | '/'
+    | '/auth/login'
+    | '/auth/register'
+    | '/products/$id'
+    | '/dashboard'
+    | '/products'
   id:
     | '__root__'
     | '/'
     | '/auth/login'
     | '/auth/register'
     | '/products/$id'
+    | '/dashboard/'
     | '/products/'
   fileRoutesById: FileRoutesById
 }
@@ -83,6 +104,7 @@ export interface RootRouteChildren {
   AuthLoginRoute: typeof AuthLoginRoute
   AuthRegisterRoute: typeof AuthRegisterRoute
   ProductsIdRoute: typeof ProductsIdRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
   ProductsIndexRoute: typeof ProductsIndexRoute
 }
 
@@ -109,6 +131,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/dashboard'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/products/': {
       id: '/products/'
       path: '/products'
@@ -131,6 +160,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthLoginRoute: AuthLoginRoute,
   AuthRegisterRoute: AuthRegisterRoute,
   ProductsIdRoute: ProductsIdRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
   ProductsIndexRoute: ProductsIndexRoute,
 }
 export const routeTree = rootRouteImport

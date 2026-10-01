@@ -48,9 +48,18 @@ export function AuthHeaderActions() {
 
   return (
     <div className="flex items-center gap-3">
-      <span className="text-sm">
-        {user.email}
-      </span>
+      <Link
+        to="/dashboard"
+        className={buttonVariants({
+          variant: "outline",
+          className:
+            "h-9 rounded-full border-primary/20 bg-primary/5 px-4 text-sm font-medium text-primary shadow-sm transition-colors hover:bg-primary/10 hover:text-primary",
+        })}
+      >
+        {user.activeRole === "seller"
+          ? "داشبورد فروشنده"
+          : "داشبورد کاربر"}
+      </Link>
 
       <Button
         type="button"

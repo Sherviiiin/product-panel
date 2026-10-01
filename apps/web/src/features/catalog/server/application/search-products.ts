@@ -4,6 +4,12 @@ export interface ProductSearchItem {
   id: number
   name: string
   description: string | null
+
+  categories: {
+    id: number
+    name: string
+  }[]
+  
   likesCount: number
   viewsCount: number
   savesCount: number

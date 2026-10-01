@@ -1,28 +1,49 @@
-import { db, sql, eq, ilike, count, min, gte, lte, and, asc, desc, exists, inArray,
-productSpecs, sellerProfiles, products, productCategories, sellerProducts,
-productLikes, productSaves, productViews
+import { and, asc, categories, count, db, desc, eq, exists, gte, ilike, inArray, lte, min,
+  productCategories, productLikes, products, productSaves, productSpecs, productViews,
+  sellerProducts, sellerProfiles, sql,
 } from "@repo/db"
 
-import type { ProductSearchParams, ProductRepository,
-  ProductSpec, ProductSeller
+import type {
+  ProductRepository,
+  ProductSearchParams,
+  ProductSeller,
+  ProductSpec,
 } from "../domain/product.repository"
 
 import type { ProductEntity } from "../domain/product.entity"
-import type { ProductSearchItem } from "../application/search-products"
-//import { toPersistence } from "./product.mapper"
 
-export class DrizzleProductRepository implements ProductRepository{
+import type {
+  ProductSearchItem,
+} from "../application/search-products"
 
+// import { toPersistence } from "./product.mapper"
+
+export class DrizzleProductRepository
+  implements ProductRepository
+{
   // 1
-  async findById(id: number): Promise<ProductEntity | null> {
-
-    const result = await db.select().from(products).where(eq(products.id, id)).limit(1)
+  async findById(
+    id: number,
+  ): Promise<ProductEntity | null> {
+    const result =
+      await db
+        .select()
+        .from(products)
+        .where(
+          eq(
+            products.id,
+            id,
+          ),
+        )
+        .limit(1)
 
     if (!result[0]) {
       return null
     }
 
-    return this.toEntity(result[0])
+    return this.toEntity(
+      result[0],
+    )
   }
 
   // 2
@@ -31,8 +52,11 @@ export class DrizzleProductRepository implements ProductRepository{
   ): Promise<ProductSpec[]> {
     return db
       .select({
-        key: productSpecs.key,
-        value: productSpecs.value,
+        key:
+          productSpecs.key,
+
+        value:
+          productSpecs.value,
       })
       .from(productSpecs)
       .where(
@@ -44,20 +68,73 @@ export class DrizzleProductRepository implements ProductRepository{
   }
 
   // 3
+  // Categories of a product
+  async findCategoriesByProductId(
+    productId: number,
+  ): Promise<
+    {
+      id: number
+      name: string
+    }[]
+  > {
+    return db
+      .select({
+        id:
+          categories.id,
+
+        name:
+          categories.name,
+      })
+      .from(
+        productCategories,
+      )
+      .innerJoin(
+        categories,
+        eq(
+          categories.id,
+          productCategories.categoryId,
+        ),
+      )
+      .where(
+        eq(
+          productCategories.productId,
+          productId,
+        ),
+      )
+      .orderBy(
+        asc(
+          categories.name,
+        ),
+      )
+  }
+
+  // 4
   async findSellersByProductId(
     productId: number,
   ): Promise<ProductSeller[]> {
     return db
       .select({
-        id: sellerProfiles.id,
-        shopName: sellerProfiles.shopName,
-        price: sellerProducts.price,
+        id:
+          sellerProfiles.id,
+
+        shopName:
+          sellerProfiles.shopName,
+
+        price:
+          sellerProducts.price,
+
         discountPrice:
           sellerProducts.discountPrice,
-        stock: sellerProducts.stock,
-        url: sellerProducts.url,
+
+        stock:
+          sellerProducts.stock,
+
+        url:
+          sellerProducts.url,
       })
-      .from(sellerProducts)
+      .from(
+        sellerProducts,
+      )
       .innerJoin(
         sellerProfiles,
         eq(
@@ -72,11 +149,13 @@ export class DrizzleProductRepository implements ProductRepository{
         ),
       )
       .orderBy(
-        asc(sellerProducts.price),
+        asc(
+          sellerProducts.price,
+        ),
       )
   }
-  
-  // 4
+
+  // 5
   async getInteractionState(
     productId: number,
     userId: number,
@@ -84,53 +163,70 @@ export class DrizzleProductRepository implements ProductRepository{
     isLiked: boolean
     isSaved: boolean
   }> {
-    const [likes, saves] = await Promise.all([
-      db
-        .select({
-          id: productLikes.id,
-        })
-        .from(productLikes)
-        .where(
-          and(
-            eq(
-              productLikes.productId,
-              productId,
+    const [
+      likes,
+      saves,
+    ] =
+      await Promise.all([
+        db
+          .select({
+            id:
+              productLikes.id,
+          })
+          .from(
+            productLikes,
+          )
+          .where(
+            and(
+              eq(
+                productLikes.productId,
+                productId,
+              ),
+              eq(
+                productLikes.userId,
+                userId,
+              ),
             ),
-            eq(
-              productLikes.userId,
-              userId,
-            ),
-          ),
-        )
-        .limit(1),
+          )
+          .limit(1),
 
-      db
-        .select({
-          id: productSaves.id,
-        })
-        .from(productSaves)
-        .where(
-          and(
-            eq(
-              productSaves.productId,
-              productId,
+        db
+          .select({
+            id:
+              productSaves.id,
+          })
+          .from(
+            productSaves,
+          )
+          .where(
+            and(
+              eq(
+                productSaves.productId,
+                productId,
+              ),
+              eq(
+                productSaves.userId,
+                userId,
+              ),
             ),
-            eq(
-              productSaves.userId,
-              userId,
-            ),
-          ),
-        )
-        .limit(1),
-    ])
+          )
+          .limit(1),
+      ])
 
     return {
-      isLiked: Boolean(likes[0]),
-      isSaved: Boolean(saves[0]),
+      isLiked:
+        Boolean(
+          likes[0],
+        ),
+
+      isSaved:
+        Boolean(
+          saves[0],
+        ),
     }
   }
 
-  // 5
+  // 6
   async toggleLike(
     productId: number,
     userId: number,
@@ -138,85 +234,102 @@ export class DrizzleProductRepository implements ProductRepository{
     isLiked: boolean
     likesCount: number
   }> {
-    return db.transaction(async (tx) => {
-      const existing = await tx
-        .select({
-          id: productLikes.id,
-        })
-        .from(productLikes)
-        .where(
-          and(
-            eq(
-              productLikes.productId,
+    return db.transaction(
+      async (tx) => {
+        const existing =
+          await tx
+            .select({
+              id:
+                productLikes.id,
+            })
+            .from(
+              productLikes,
+            )
+            .where(
+              and(
+                eq(
+                  productLikes.productId,
+                  productId,
+                ),
+                eq(
+                  productLikes.userId,
+                  userId,
+                ),
+              ),
+            )
+            .limit(1)
+
+        let isLiked: boolean
+
+        if (
+          existing[0]
+        ) {
+          await tx
+            .delete(
+              productLikes,
+            )
+            .where(
+              eq(
+                productLikes.id,
+                existing[0].id,
+              ),
+            )
+
+          isLiked = false
+        } else {
+          await tx
+            .insert(
+              productLikes,
+            )
+            .values({
               productId,
-            ),
-            eq(
-              productLikes.userId,
               userId,
-            ),
-          ),
-        )
-        .limit(1)
+            })
 
-      let isLiked: boolean
+          isLiked = true
+        }
 
-      if (existing[0]) {
+        const result =
+          await tx
+            .select({
+              total:
+                count(),
+            })
+            .from(
+              productLikes,
+            )
+            .where(
+              eq(
+                productLikes.productId,
+                productId,
+              ),
+            )
+
+        const likesCount =
+          result[0]
+            ?.total ?? 0
+
         await tx
-          .delete(productLikes)
+          .update(products)
+          .set({
+            likesCount,
+          })
           .where(
             eq(
-              productLikes.id,
-              existing[0].id,
+              products.id,
+              productId,
             ),
           )
 
-        isLiked = false
-      } else {
-        await tx
-          .insert(productLikes)
-          .values({
-            productId,
-            userId,
-          })
-
-        isLiked = true
-      }
-
-      const result = await tx
-        .select({
-          total: count(),
-        })
-        .from(productLikes)
-        .where(
-          eq(
-            productLikes.productId,
-            productId,
-          ),
-        )
-
-      const likesCount =
-        result[0]?.total ?? 0
-
-      await tx
-        .update(products)
-        .set({
+        return {
+          isLiked,
           likesCount,
-        })
-        .where(
-          eq(
-            products.id,
-            productId,
-          ),
-        )
-
-      return {
-        isLiked,
-        likesCount,
-      }
-    })
+        }
+      },
+    )
   }
 
-  // 6
+  // 7
   async toggleSave(
     productId: number,
     userId: number,
@@ -224,85 +337,102 @@ export class DrizzleProductRepository implements ProductRepository{
     isSaved: boolean
     savesCount: number
   }> {
-    return db.transaction(async (tx) => {
-      const existing = await tx
-        .select({
-          id: productSaves.id,
-        })
-        .from(productSaves)
-        .where(
-          and(
-            eq(
-              productSaves.productId,
+    return db.transaction(
+      async (tx) => {
+        const existing =
+          await tx
+            .select({
+              id:
+                productSaves.id,
+            })
+            .from(
+              productSaves,
+            )
+            .where(
+              and(
+                eq(
+                  productSaves.productId,
+                  productId,
+                ),
+                eq(
+                  productSaves.userId,
+                  userId,
+                ),
+              ),
+            )
+            .limit(1)
+
+        let isSaved: boolean
+
+        if (
+          existing[0]
+        ) {
+          await tx
+            .delete(
+              productSaves,
+            )
+            .where(
+              eq(
+                productSaves.id,
+                existing[0].id,
+              ),
+            )
+
+          isSaved = false
+        } else {
+          await tx
+            .insert(
+              productSaves,
+            )
+            .values({
               productId,
-            ),
-            eq(
-              productSaves.userId,
               userId,
-            ),
-          ),
-        )
-        .limit(1)
+            })
 
-      let isSaved: boolean
+          isSaved = true
+        }
 
-      if (existing[0]) {
+        const result =
+          await tx
+            .select({
+              total:
+                count(),
+            })
+            .from(
+              productSaves,
+            )
+            .where(
+              eq(
+                productSaves.productId,
+                productId,
+              ),
+            )
+
+        const savesCount =
+          result[0]
+            ?.total ?? 0
+
         await tx
-          .delete(productSaves)
+          .update(products)
+          .set({
+            savesCount,
+          })
           .where(
             eq(
-              productSaves.id,
-              existing[0].id,
+              products.id,
+              productId,
             ),
           )
 
-        isSaved = false
-      } else {
-        await tx
-          .insert(productSaves)
-          .values({
-            productId,
-            userId,
-          })
-
-        isSaved = true
-      }
-
-      const result = await tx
-        .select({
-          total: count(),
-        })
-        .from(productSaves)
-        .where(
-          eq(
-            productSaves.productId,
-            productId,
-          ),
-        )
-
-      const savesCount =
-        result[0]?.total ?? 0
-
-      await tx
-        .update(products)
-        .set({
+        return {
+          isSaved,
           savesCount,
-        })
-        .where(
-          eq(
-            products.id,
-            productId,
-          ),
-        )
-
-      return {
-        isSaved,
-        savesCount,
-      }
-    })
+        }
+      },
+    )
   }
 
-  // 7
+  // 8
   async recordView(
     productId: number,
     userId?: number,
@@ -312,17 +442,25 @@ export class DrizzleProductRepository implements ProductRepository{
     return db.transaction(
       async (tx) => {
         await tx
-          .insert(productViews)
+          .insert(
+            productViews,
+          )
           .values({
             productId,
-            userId: userId ?? null,
+
+            userId:
+              userId ??
+              null,
           })
 
-        const [updatedProduct] =
+        const [
+          updatedProduct,
+        ] =
           await tx
             .update(products)
             .set({
-              viewsCount: sql`${products.viewsCount} + 1`,
+              viewsCount:
+                sql`${products.viewsCount} + 1`,
             })
             .where(
               eq(
@@ -335,7 +473,9 @@ export class DrizzleProductRepository implements ProductRepository{
                 products.viewsCount,
             })
 
-        if (!updatedProduct) {
+        if (
+          !updatedProduct
+        ) {
           throw new Error(
             "PRODUCT_NOT_FOUND",
           )
@@ -346,7 +486,7 @@ export class DrizzleProductRepository implements ProductRepository{
     )
   }
 
-  // 8
+  // 9
   async searchProducts(
     params: ProductSearchParams,
   ): Promise<{
@@ -354,8 +494,12 @@ export class DrizzleProductRepository implements ProductRepository{
     total: number
   }> {
     const offset =
-      (params.page - 1) * params.pageSize
-  
+      (
+        params.page -
+        1
+      ) *
+      params.pageSize
+
     const where = and(
       params.search
         ? ilike(
@@ -363,18 +507,24 @@ export class DrizzleProductRepository implements ProductRepository{
             `%${params.search}%`,
           )
         : undefined,
-        
-      params.categoryIds
+
+      params.categoryIds &&
+        params
+          .categoryIds
+          .length > 0
         ? exists(
             db
               .select()
-              .from(productCategories)
+              .from(
+                productCategories,
+              )
               .where(
                 and(
                   eq(
                     productCategories.productId,
                     products.id,
                   ),
+
                   inArray(
                     productCategories.categoryId,
                     params.categoryIds,
@@ -384,114 +534,291 @@ export class DrizzleProductRepository implements ProductRepository{
           )
         : undefined,
     )
-  
+
     const minPriceExpression =
-      min(sellerProducts.price)
-  
-    const priceFilter = and(
-      params.minPrice !== undefined
-        ? gte(
-            minPriceExpression,
-            params.minPrice,
-          )
-        : undefined,
-        
-      params.maxPrice !== undefined
-        ? lte(
-            minPriceExpression,
-            params.maxPrice,
-          )
-        : undefined,
-    )
-  
+      min(
+        sellerProducts.price,
+      )
+
+    const priceFilter =
+      and(
+        params.minPrice !==
+        undefined
+          ? gte(
+              minPriceExpression,
+              params.minPrice,
+            )
+          : undefined,
+
+        params.maxPrice !==
+        undefined
+          ? lte(
+              minPriceExpression,
+              params.maxPrice,
+            )
+          : undefined,
+      )
+
     const sortColumns = {
-      name: products.name,
-      likesCount: products.likesCount,
-      viewsCount: products.viewsCount,
-      savesCount: products.savesCount,
-      minPrice: minPriceExpression,
+      name:
+        products.name,
+
+      likesCount:
+        products.likesCount,
+
+      viewsCount:
+        products.viewsCount,
+
+      savesCount:
+        products.savesCount,
+
+      minPrice:
+        minPriceExpression,
     }
-  
+
     const orderBy =
-      params.sortBy && params.sortOrder
-        ? params.sortOrder === "asc"
-          ? asc(sortColumns[params.sortBy])
-          : desc(sortColumns[params.sortBy])
+      params.sortBy &&
+      params.sortOrder
+        ? params.sortOrder ===
+          "asc"
+          ? asc(
+              sortColumns[
+                params.sortBy
+              ],
+            )
+          : desc(
+              sortColumns[
+                params.sortBy
+              ],
+            )
         : undefined
-  
-    const rows = await db
-      .select({
-        id: products.id,
-        name: products.name,
-        description: products.description,
-      
-        likesCount: products.likesCount,
-        viewsCount: products.viewsCount,
-        savesCount: products.savesCount,
-      
-        minPrice: minPriceExpression,
-      
-        sellerCount: count(
-          sellerProducts.id,
-        ),
-      })
-      .from(products)
-      .leftJoin(
-        sellerProducts,
-        eq(
-          sellerProducts.productId,
+
+    const rows =
+      await db
+        .select({
+          id:
+            products.id,
+
+          name:
+            products.name,
+
+          description:
+            products.description,
+
+          likesCount:
+            products.likesCount,
+
+          viewsCount:
+            products.viewsCount,
+
+          savesCount:
+            products.savesCount,
+
+          minPrice:
+            minPriceExpression,
+
+          sellerCount:
+            count(
+              sellerProducts.id,
+            ),
+        })
+        .from(products)
+        .leftJoin(
+          sellerProducts,
+          eq(
+            sellerProducts.productId,
+            products.id,
+          ),
+        )
+        .where(where)
+        .groupBy(
           products.id,
-        ),
+        )
+        .having(
+          priceFilter,
+        )
+        .orderBy(
+          ...(
+            orderBy
+              ? [
+                  orderBy,
+                ]
+              : []
+          ),
+        )
+        .limit(
+          params.pageSize,
+        )
+        .offset(offset)
+
+    /*
+     * Categories are loaded in one query for
+     * all products of the current page.
+     *
+     * This avoids an N+1 query.
+     */
+    const productIds =
+      rows.map(
+        (product) =>
+          product.id,
       )
-      .where(where)
-      .groupBy(products.id)
-      .having(priceFilter)
-      .orderBy(
-        ...(orderBy ? [orderBy] : []),
-      )
-      .limit(params.pageSize)
-      .offset(offset)
-    
-    const totalRows = await db
-      .select({
-        id: products.id,
+
+    const categoryRows =
+      productIds.length >
+      0
+        ? await db
+            .select({
+              productId:
+                productCategories.productId,
+
+              id:
+                categories.id,
+
+              name:
+                categories.name,
+            })
+            .from(
+              productCategories,
+            )
+            .innerJoin(
+              categories,
+              eq(
+                categories.id,
+                productCategories.categoryId,
+              ),
+            )
+            .where(
+              inArray(
+                productCategories.productId,
+                productIds,
+              ),
+            )
+            .orderBy(
+              asc(
+                categories.name,
+              ),
+            )
+        : []
+
+    const categoriesByProduct =
+      new Map<
+        number,
+        {
+          id: number
+          name: string
+        }[]
+      >()
+
+    for (
+      const category
+      of categoryRows
+    ) {
+      const current =
+        categoriesByProduct.get(
+          category.productId,
+        ) ?? []
+
+      current.push({
+        id:
+          category.id,
+
+        name:
+          category.name,
       })
-      .from(products)
-      .leftJoin(
-        sellerProducts,
-        eq(
-          sellerProducts.productId,
-          products.id,
-        ),
+
+      categoriesByProduct.set(
+        category.productId,
+        current,
       )
-      .where(where)
-      .groupBy(products.id)
-      .having(priceFilter)
-    
+    }
+
+    const items: ProductSearchItem[] =
+      rows.map(
+        (product) => ({
+          ...product,
+
+          categories:
+            categoriesByProduct.get(
+              product.id,
+            ) ?? [],
+        }),
+      )
+
+    const totalRows =
+      await db
+        .select({
+          id:
+            products.id,
+        })
+        .from(products)
+        .leftJoin(
+          sellerProducts,
+          eq(
+            sellerProducts.productId,
+            products.id,
+          ),
+        )
+        .where(where)
+        .groupBy(
+          products.id,
+        )
+        .having(
+          priceFilter,
+        )
+
     return {
-      items: rows,
-      total: totalRows.length,
+      items,
+
+      total:
+        totalRows.length,
     }
   }
 
-  // 9
-  //async create(data: Omit<ProductEntity, "id">): Promise<ProductEntity> {
-  //
-  //  const result = await db.insert(products).values(toPersistence(data)).returning()
-  //
-  //  return this.toEntity(result[0])
-  //}
-
   // 10
-  private toEntity(row: typeof products.$inferSelect): ProductEntity {
+  // async create(
+  //   data: Omit<
+  //     ProductEntity,
+  //     "id"
+  //   >,
+  // ): Promise<ProductEntity> {
+  //   const result =
+  //     await db
+  //       .insert(products)
+  //       .values(
+  //         toPersistence(
+  //           data,
+  //         ),
+  //       )
+  //       .returning()
+  //
+  //   return this.toEntity(
+  //     result[0],
+  //   )
+  // }
 
+  // 11
+  private toEntity(
+    row:
+      typeof products.$inferSelect,
+  ): ProductEntity {
     return {
-      id: row.id,
-      name: row.name,
-      description: row.description,
-      likesCount: row.likesCount,
-      viewsCount: row.viewsCount,
-      savesCount: row.savesCount,
+      id:
+        row.id,
+
+      name:
+        row.name,
+
+      description:
+        row.description,
+
+      likesCount:
+        row.likesCount,
+
+      viewsCount:
+        row.viewsCount,
+
+      savesCount:
+        row.savesCount,
     }
   }
 }

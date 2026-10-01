@@ -15,8 +15,11 @@ export class GetProduct {
       return null
     }
 
-    const [specs, sellers, interaction] = await Promise.all([
+    const [specs, categories, sellers, interaction] = await Promise.all([
       this.productRepository.findSpecsByProductId(id),
+
+      this.productRepository.findCategoriesByProductId(id),
+
       this.productRepository.findSellersByProductId(id),
       
       userId ? this.productRepository.getInteractionState(id, userId): Promise.resolve({
@@ -28,6 +31,7 @@ export class GetProduct {
     return {
       ...product,
       specs,
+      categories,
       sellers,
       ...interaction,
     }

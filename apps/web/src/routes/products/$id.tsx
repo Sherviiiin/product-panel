@@ -243,6 +243,21 @@ function ProductPage() {
                       {product.name}
                     </h1>
 
+                    {product.categories.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {product.categories.map(
+                          (category) => (
+                            <span
+                              key={category.id}
+                              className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground"
+                            >
+                              {category.name}
+                            </span>
+                          ),
+                        )}
+                      </div>
+                    )}
+
                     {product.description ? (
                       <p className="max-w-4xl leading-8 text-muted-foreground">
                         {product.description}

@@ -28,11 +28,17 @@ export interface ProductSeller {
   stock: number
   url: string
 }
+
+export interface ProductCategory {
+  id: number
+  name: string
+}
 export interface ProductRepository {
   findById(id: number): Promise<ProductEntity | null>
 
   findSpecsByProductId(productId: number): Promise<ProductSpec[]>
   findSellersByProductId(productId: number): Promise<ProductSeller[]>
+  findCategoriesByProductId(productId: number): Promise<ProductCategory[]>
 
   getInteractionState(productId: number, userId: number): Promise<{
     isLiked: boolean

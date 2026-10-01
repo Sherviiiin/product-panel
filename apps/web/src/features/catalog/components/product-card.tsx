@@ -44,6 +44,24 @@ export function ProductCard({
             {product.name}
           </h3>
 
+          {product.categories.length >
+            0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {product.categories.map(
+                (category) => (
+                  <span
+                    key={
+                      category.id
+                    }
+                    className="rounded-full bg-muted px-2.5 py-1 text-xs text-muted-foreground"
+                  >
+                    {category.name}
+                  </span>
+                ),
+              )}
+            </div>
+          )}
+          
           {product.description && (
             <p className="mt-2 hidden line-clamp-2 text-sm leading-6 text-muted-foreground sm:block">
               {product.description}
