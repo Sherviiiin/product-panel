@@ -13,6 +13,4 @@ todos.json
 
 .vscode/
 
-.env
-.env.*
-!.env.example
+

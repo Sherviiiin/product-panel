@@ -673,6 +673,16 @@ async function seed() {
     // Check fixed reference data
     // ---------------------------------------------------------
 
+    await tx.insert(roles).values([
+      { "name": "normal" },
+      { "name": "seller" },
+      { "name": "admin" }
+    ]).onConflictDoNothing()
+    await tx.insert(sellerTypes).values([
+      { "name": "online" },
+      { "name": "physical" }
+    ]).onConflictDoNothing()
+
     const existingRoles = await tx
       .select({
         id: roles.id,
