@@ -8,5 +8,8 @@
     "typecheck": "pnpm --filter web exec tsc --noEmit && pnpm --filter @repo/db exec tsc --noEmit",
     "db:migrate": "pnpm --filter @repo/db db:migrate",
     "db:seed": "pnpm --filter @repo/db db:seed"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.15"
   }
 }
