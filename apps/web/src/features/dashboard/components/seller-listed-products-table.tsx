@@ -1,6 +1,5 @@
 import {
   useMemo,
-  type MouseEvent,
 } from "react"
 
 import {
@@ -60,6 +59,42 @@ type Props = {
   deletingListingId?: number
 }
 
+function SortHeader({
+  column,
+  children,
+  sortBy,
+  sortOrder,
+  onSort,
+}: {
+  column: SellerSortBy
+  children: React.ReactNode
+  sortBy?: SellerSortBy
+  sortOrder?: "asc" | "desc"
+  onSort: (column: SellerSortBy) => void
+}) {
+  const active = sortBy === column
+
+  return (
+    <Button
+      type="button"
+      variant="ghost"
+      size="sm"
+      className="-mr-3 gap-1.5"
+      onClick={() => onSort(column)}
+    >
+      {children}
+
+      {!active ? (
+        <ArrowUpDown className="size-3.5 text-muted-foreground" />
+      ) : sortOrder === "asc" ? (
+        <ArrowUp className="size-3.5" />
+      ) : (
+        <ArrowDown className="size-3.5" />
+      )}
+    </Button>
+  )
+}
+
 export function SellerListedProductsTable({
   products,
   sortBy,
@@ -70,39 +105,6 @@ export function SellerListedProductsTable({
   deletingListingId,
 }: Props) {
   const navigate = useNavigate()
-
-  function SortHeader({
-    column,
-    children,
-  }: {
-    column: SellerSortBy
-    children: React.ReactNode
-  }) {
-    const active =
-      sortBy === column
-
-    return (
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        className="-mr-3 gap-1.5"
-        onClick={() =>
-          onSort(column)
-        }
-      >
-        {children}
-
-        {!active ? (
-          <ArrowUpDown className="size-3.5 text-muted-foreground" />
-        ) : sortOrder === "asc" ? (
-          <ArrowUp className="size-3.5" />
-        ) : (
-          <ArrowDown className="size-3.5" />
-        )}
-      </Button>
-    )
-  }
 
   const columns = useMemo<
     Array<
@@ -117,7 +119,11 @@ export function SellerListedProductsTable({
         accessorKey: "name",
 
         header: () => (
-          <SortHeader column="name">
+          <SortHeader column="name"
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            onSort={onSort}
+          >
             محصول
           </SortHeader>
         ),
@@ -148,7 +154,11 @@ export function SellerListedProductsTable({
         accessorKey: "price",
 
         header: () => (
-          <SortHeader column="price">
+          <SortHeader column="price"
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            onSort={onSort}
+          >
             قیمت
           </SortHeader>
         ),
@@ -168,7 +178,11 @@ export function SellerListedProductsTable({
           "discountPrice",
 
         header: () => (
-          <SortHeader column="discountPrice">
+          <SortHeader column="discountPrice"
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            onSort={onSort}
+          >
             قیمت تخفیف
           </SortHeader>
         ),
@@ -190,7 +204,11 @@ export function SellerListedProductsTable({
         accessorKey: "stock",
 
         header: () => (
-          <SortHeader column="stock">
+          <SortHeader column="stock"
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            onSort={onSort}
+          >
             موجودی
           </SortHeader>
         ),
@@ -210,23 +228,16 @@ export function SellerListedProductsTable({
             info.row.original
 
           return (
-            <div
-              className="flex gap-2"
-              onClick={(
-                event:
-                  MouseEvent<HTMLDivElement>,
-              ) => {
-                event.stopPropagation()
-              }}
-            >
+            <div className="flex gap-2">
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
                 className="gap-1.5"
-                onClick={() =>
+                onClick={(event) => {
+                  event.stopPropagation()
                   onEdit(product)
-                }
+                }}
               >
                 <Pencil className="size-3.5" />
 
@@ -242,9 +253,10 @@ export function SellerListedProductsTable({
                   deletingListingId ===
                   product.listingId
                 }
-                onClick={() =>
+                onClick={(event) => {
+                  event.stopPropagation()
                   onDelete(product)
-                }
+                }}
               >
                 <Trash2 className="size-3.5" />
 

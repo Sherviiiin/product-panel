@@ -1,3 +1,5 @@
+import { useId } from "react"
+
 import {
   useEffect,
 } from "react"
@@ -95,6 +97,8 @@ export function SellerListingEditDialog({
   open,
   onOpenChange,
 }: Props) {
+  const formId = useId()
+
   const queryClient =
     useQueryClient()
 
@@ -116,6 +120,8 @@ export function SellerListingEditDialog({
         onOpenChange(false)
       },
     })
+
+  const { reset: resetMutation } = mutation
 
   const form = useForm({
     defaultValues: {
@@ -158,7 +164,7 @@ export function SellerListingEditDialog({
       return
     }
 
-    mutation.reset()
+    resetMutation()
 
     form.reset({
       listingId:
@@ -176,10 +182,7 @@ export function SellerListingEditDialog({
       url:
         product.url,
     })
-  }, [
-    product,
-    form,
-  ])
+  }, [product, form, resetMutation])
 
   function closeDialog() {
     mutation.reset()
@@ -231,7 +234,7 @@ export function SellerListingEditDialog({
           >
             {(field) => (
               <div className="space-y-2">
-                <label className="text-sm font-medium">
+                <label className="text-sm font-medium" htmlFor={`${formId}-${field.name}`}>
                   قیمت
                 </label>
 
@@ -252,6 +255,8 @@ export function SellerListingEditDialog({
                       ),
                     )
                   }
+
+                  id={`${formId}-${field.name}`}
                 />
 
                 <FieldErrors
@@ -270,7 +275,7 @@ export function SellerListingEditDialog({
           >
             {(field) => (
               <div className="space-y-2">
-                <label className="text-sm font-medium">
+                <label className="text-sm font-medium" htmlFor={`${formId}-${field.name}`}>
                   قیمت با تخفیف
                 </label>
 
@@ -296,6 +301,8 @@ export function SellerListingEditDialog({
                           ),
                     )
                   }
+
+                  id={`${formId}-${field.name}`}
                 />
 
                 <FieldErrors
@@ -314,7 +321,7 @@ export function SellerListingEditDialog({
           >
             {(field) => (
               <div className="space-y-2">
-                <label className="text-sm font-medium">
+                <label className="text-sm font-medium" htmlFor={`${formId}-${field.name}`}>
                   موجودی
                 </label>
 
@@ -335,6 +342,8 @@ export function SellerListingEditDialog({
                       ),
                     )
                   }
+
+                  id={`${formId}-${field.name}`}
                 />
 
                 <FieldErrors
@@ -353,7 +362,7 @@ export function SellerListingEditDialog({
           >
             {(field) => (
               <div className="space-y-2">
-                <label className="text-sm font-medium">
+                <label className="text-sm font-medium" htmlFor={`${formId}-${field.name}`}>
                   لینک فروش
                 </label>
 
@@ -370,6 +379,8 @@ export function SellerListingEditDialog({
                       event.target.value,
                     )
                   }
+
+                  id={`${formId}-${field.name}`}
                 />
 
                 <FieldErrors

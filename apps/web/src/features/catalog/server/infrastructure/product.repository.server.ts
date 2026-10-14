@@ -52,6 +52,7 @@ export class DrizzleProductRepository
   ): Promise<ProductSpec[]> {
     return db
       .select({
+        id: productSpecs.id,
         key:
           productSpecs.key,
 

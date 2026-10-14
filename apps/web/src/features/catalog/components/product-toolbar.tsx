@@ -140,7 +140,10 @@ export function ProductToolbar({
     ])
 
     setSort(
-      getInitialSort(search),
+      getInitialSort({
+        sortBy: search.sortBy,
+        sortOrder: search.sortOrder,
+      }),
     )
   }, [
     search.minPrice,

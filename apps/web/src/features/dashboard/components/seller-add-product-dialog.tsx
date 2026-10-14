@@ -1,4 +1,5 @@
 import {
+  useId,
   useState,
 } from "react"
 
@@ -103,6 +104,10 @@ export function SellerAddProductDialog({
   open,
   onOpenChange,
 }: Props) {
+  const formId = useId()
+
+  const [specRowIds, setSpecRowIds] = useState<string[]>([])
+
   const queryClient =
     useQueryClient()
 
@@ -177,6 +182,8 @@ export function SellerAddProductDialog({
         })
 
         newProductForm.reset()
+
+        setSpecRowIds([])
 
         onOpenChange(false)
       },
@@ -266,6 +273,8 @@ export function SellerAddProductDialog({
 
     existingForm.reset()
     newProductForm.reset()
+
+    setSpecRowIds([])
 
     existingMutation.reset()
     newMutation.reset()
@@ -476,7 +485,7 @@ export function SellerAddProductDialog({
               >
                 {(field) => (
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">
+                    <label className="text-sm font-medium" htmlFor={`${formId}-existing-${field.name}`}>
                       قیمت
                     </label>
 
@@ -501,6 +510,8 @@ export function SellerAddProductDialog({
                           ),
                         )
                       }
+
+                      id={`${formId}-existing-${field.name}`}
                     />
 
                     <FieldErrors
@@ -518,7 +529,7 @@ export function SellerAddProductDialog({
               >
                 {(field) => (
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">
+                    <label className="text-sm font-medium" htmlFor={`${formId}-existing-${field.name}`}>
                       قیمت با تخفیف
                     </label>
 
@@ -549,6 +560,8 @@ export function SellerAddProductDialog({
                               ),
                         )
                       }
+
+                      id={`${formId}-existing-${field.name}`}
                     />
 
                     <FieldErrors
@@ -566,7 +579,7 @@ export function SellerAddProductDialog({
               >
                 {(field) => (
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">
+                    <label className="text-sm font-medium" htmlFor={`${formId}-existing-${field.name}`}>
                       موجودی
                     </label>
 
@@ -591,6 +604,8 @@ export function SellerAddProductDialog({
                           ),
                         )
                       }
+
+                      id={`${formId}-existing-${field.name}`}
                     />
 
                     <FieldErrors
@@ -608,7 +623,7 @@ export function SellerAddProductDialog({
               >
                 {(field) => (
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">
+                    <label className="text-sm font-medium" htmlFor={`${formId}-existing-${field.name}`}>
                       لینک فروش
                     </label>
 
@@ -629,6 +644,8 @@ export function SellerAddProductDialog({
                             .value,
                         )
                       }
+
+                      id={`${formId}-existing-${field.name}`}
                     />
 
                     <FieldErrors
@@ -711,7 +728,7 @@ export function SellerAddProductDialog({
             >
               {(field) => (
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">
+                  <label className="text-sm font-medium" htmlFor={`${formId}-new-${field.name}`}>
                     نام محصول
                   </label>
 
@@ -731,6 +748,8 @@ export function SellerAddProductDialog({
                           .value,
                       )
                     }
+
+                    id={`${formId}-new-${field.name}`}
                   />
 
                   <FieldErrors
@@ -749,7 +768,7 @@ export function SellerAddProductDialog({
             >
               {(field) => (
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">
+                  <label className="text-sm font-medium" htmlFor={`${formId}-new-${field.name}`}>
                     توضیحات
                   </label>
 
@@ -772,6 +791,8 @@ export function SellerAddProductDialog({
                       )
                     }
                     className="min-h-28 w-full resize-y rounded-md border bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+
+                    id={`${formId}-new-${field.name}`}
                   />
 
                   <FieldErrors
@@ -790,9 +811,9 @@ export function SellerAddProductDialog({
             >
               {(field) => (
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">
+                  <p className="text-sm font-medium">
                     دسته‌بندی‌ها
-                  </label>
+                  </p>
 
                   {categoriesQuery.isPending ? (
                     <div className="rounded-md border p-4 text-center text-sm text-muted-foreground">
@@ -883,9 +904,9 @@ export function SellerAddProductDialog({
                 <div className="space-y-3">
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <label className="text-sm font-medium">
+                      <p className="text-sm font-medium">
                         مشخصات محصول
-                      </label>
+                      </p>
 
                       <p className="mt-1 text-xs text-muted-foreground">
                         مشخصاتی مثل رنگ، وزن، حافظه یا ابعاد را اضافه کنید.
@@ -897,12 +918,10 @@ export function SellerAddProductDialog({
                       size="sm"
                       variant="outline"
                       className="shrink-0 gap-1.5"
-                      onClick={() =>
-                        field.pushValue({
-                          key: "",
-                          value: "",
-                        })
-                      }
+                      onClick={() => {
+                        setSpecRowIds((ids) => [...ids, crypto.randomUUID()])
+                        field.pushValue({ key: "", value: "" })
+                      }}
                     >
                       <Plus className="size-4" />
 
@@ -917,14 +936,10 @@ export function SellerAddProductDialog({
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      {field.state.value.map(
-                        (
-                          _,
-                          index,
-                        ) => (
+                      {specRowIds.map((rowId, index) => (
                           <div
                             key={
-                              index
+                              rowId
                             }
                             className="grid gap-2 rounded-md border p-3 sm:grid-cols-[1fr_1fr_auto]"
                           >
@@ -1011,11 +1026,10 @@ export function SellerAddProductDialog({
                               variant="outline"
                               size="icon"
                               className="text-destructive"
-                              onClick={() =>
-                                field.removeValue(
-                                  index,
-                                )
-                              }
+                              onClick={() => {
+                                setSpecRowIds((ids) => ids.filter((_, i) => i !== index))
+                                field.removeValue(index)
+                              }}
                             >
                               <Trash2 className="size-4" />
                             </Button>
@@ -1047,7 +1061,7 @@ export function SellerAddProductDialog({
                 >
                   {(field) => (
                     <div className="space-y-2">
-                      <label className="text-sm font-medium">
+                      <label className="text-sm font-medium" htmlFor={`${formId}-new-${field.name}`}>
                         قیمت
                       </label>
 
@@ -1072,6 +1086,8 @@ export function SellerAddProductDialog({
                             ),
                           )
                         }
+
+                        id={`${formId}-new-${field.name}`}
                       />
 
                       <FieldErrors
@@ -1089,7 +1105,7 @@ export function SellerAddProductDialog({
                 >
                   {(field) => (
                     <div className="space-y-2">
-                      <label className="text-sm font-medium">
+                      <label className="text-sm font-medium" htmlFor={`${formId}-new-${field.name}`}>
                         قیمت با تخفیف
                       </label>
 
@@ -1120,6 +1136,8 @@ export function SellerAddProductDialog({
                                 ),
                           )
                         }
+
+                        id={`${formId}-new-${field.name}`}
                       />
 
                       <FieldErrors
@@ -1137,7 +1155,7 @@ export function SellerAddProductDialog({
                 >
                   {(field) => (
                     <div className="space-y-2">
-                      <label className="text-sm font-medium">
+                      <label className="text-sm font-medium" htmlFor={`${formId}-new-${field.name}`}>
                         موجودی
                       </label>
 
@@ -1162,6 +1180,8 @@ export function SellerAddProductDialog({
                             ),
                           )
                         }
+
+                        id={`${formId}-new-${field.name}`}
                       />
 
                       <FieldErrors
@@ -1179,7 +1199,7 @@ export function SellerAddProductDialog({
                 >
                   {(field) => (
                     <div className="space-y-2">
-                      <label className="text-sm font-medium">
+                      <label className="text-sm font-medium" htmlFor={`${formId}-new-${field.name}`}>
                         لینک فروش
                       </label>
 
@@ -1200,6 +1220,8 @@ export function SellerAddProductDialog({
                               .value,
                           )
                         }
+
+                        id={`${formId}-new-${field.name}`}
                       />
 
                       <FieldErrors

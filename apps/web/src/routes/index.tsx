@@ -61,9 +61,8 @@ function HomePage() {
             form.handleSubmit()
           }}
         >
-          <form.Field
-            name="search"
-            children={(field) => (
+          <form.Field name="search">
+            {(field) => (
               <div className="flex-1">
                 <Input
                   name={field.name}
@@ -78,7 +77,7 @@ function HomePage() {
                 />
 
                 {field.state.meta.errors.map(
-                  (error, index) => {
+                  (error) => {
                     if (!error) return null
 
                     const message =
@@ -90,7 +89,7 @@ function HomePage() {
 
                     return (
                       <p
-                        key={index}
+                        key={message}
                         className="mt-1 text-start text-sm text-destructive"
                       >
                         {message}
@@ -100,17 +99,15 @@ function HomePage() {
                 )}
               </div>
             )}
-          />
+          </form.Field>
 
           <form.Subscribe
             selector={(state) => [
               state.canSubmit,
               state.isSubmitting,
             ]}
-            children={([
-              canSubmit,
-              isSubmitting,
-            ]) => (
+          >
+            {([canSubmit, isSubmitting]) => (
               <Button
                 type="submit"
                 disabled={
@@ -120,7 +117,7 @@ function HomePage() {
                 جستجو
               </Button>
             )}
-          />
+          </form.Subscribe>
         </form>
       </section>
     </main>

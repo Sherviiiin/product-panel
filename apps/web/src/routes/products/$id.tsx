@@ -425,10 +425,9 @@ function ProductPage() {
                 </div>
               ) : (
                 <div>
-                  {product.specs.map(
-                    (spec, index) => (
+                  {product.specs.map((spec) => (
                       <div
-                        key={`${spec.key}-${index}`}
+                        key={spec.id}
                         className="grid grid-cols-[130px_1fr] border-b last:border-b-0 sm:grid-cols-[170px_1fr]"
                       >
                         <div className="bg-muted/40 px-4 py-4 text-sm font-medium">

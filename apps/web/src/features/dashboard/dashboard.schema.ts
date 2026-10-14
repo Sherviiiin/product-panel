@@ -203,7 +203,9 @@ const optionalProfileUrlSchema = z.union([
 export const updateUserDashboardProfileSchema = z.object({
   fullName: z.string().trim().min(2, "نام باید حداقل ۲ کاراکتر باشد",).max(150),
 
-  username: z.string().trim().min(3, "نام کاربری باید حداقل ۳ کاراکتر باشد",).max(100),
+  //username: z.string().trim().min(3, "نام کاربری باید حداقل ۳ کاراکتر باشد",).max(100),
+  username: z.string().trim().toLowerCase().min(3, "نام کاربری باید حداقل ۳ کاراکتر باشد").max(100)
+  .regex(/^[a-z_][a-z0-9_]*$/i, "نام کاربری نباید با عدد شروع شود و فقط می‌تواند شامل حروف انگلیسی، عدد و _ باشد"),
 
   avatar: optionalProfileUrlSchema,
 

@@ -1,6 +1,5 @@
 import {
   useMemo,
-  type MouseEvent,
   type ReactNode,
 } from "react"
 
@@ -51,6 +50,42 @@ type DashboardProductsTableProps = {
   ) => ReactNode
 }
 
+function SortHeader({
+  column,
+  children,
+  sortBy,
+  sortOrder,
+  onSort,
+}: {
+  column: DashboardProductSortBy
+  children: ReactNode
+  sortBy?: DashboardProductSortBy
+  sortOrder?: DashboardSortOrder
+  onSort: (sortBy: DashboardProductSortBy) => void
+}) {
+  const active = sortBy === column
+
+  return (
+    <Button
+      type="button"
+      variant="ghost"
+      size="sm"
+      className="-mr-3 gap-1.5"
+      onClick={() => onSort(column)}
+    >
+      {children}
+
+      {!active ? (
+        <ArrowUpDown className="size-3.5 text-muted-foreground" />
+      ) : sortOrder === "asc" ? (
+        <ArrowUp className="size-3.5" />
+      ) : (
+        <ArrowDown className="size-3.5" />
+      )}
+    </Button>
+  )
+}
+
 export function DashboardProductsTable({
   products,
   sortBy,
@@ -59,39 +94,6 @@ export function DashboardProductsTable({
   renderActions,
 }: DashboardProductsTableProps) {
   const navigate = useNavigate()
-
-  function SortHeader({
-    column,
-    children,
-  }: {
-    column: DashboardProductSortBy
-    children: ReactNode
-  }) {
-    const active =
-      sortBy === column
-
-    return (
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        className="-mr-3 gap-1.5"
-        onClick={() =>
-          onSort(column)
-        }
-      >
-        {children}
-
-        {!active ? (
-          <ArrowUpDown className="size-3.5 text-muted-foreground" />
-        ) : sortOrder === "asc" ? (
-          <ArrowUp className="size-3.5" />
-        ) : (
-          <ArrowDown className="size-3.5" />
-        )}
-      </Button>
-    )
-  }
 
   const columns = useMemo<
     Array<
@@ -106,7 +108,11 @@ export function DashboardProductsTable({
         accessorKey: "name",
 
         header: () => (
-          <SortHeader column="name">
+          <SortHeader column="name"
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            onSort={onSort}
+          >
             محصول
           </SortHeader>
         ),
@@ -133,7 +139,11 @@ export function DashboardProductsTable({
         accessorKey: "minPrice",
 
         header: () => (
-          <SortHeader column="minPrice">
+          <SortHeader column="minPrice"
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            onSort={onSort}
+          >
             قیمت
           </SortHeader>
         ),
@@ -176,7 +186,11 @@ export function DashboardProductsTable({
         accessorKey: "likesCount",
 
         header: () => (
-          <SortHeader column="likesCount">
+          <SortHeader column="likesCount"
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            onSort={onSort}
+          >
             لایک
           </SortHeader>
         ),
@@ -191,7 +205,11 @@ export function DashboardProductsTable({
         accessorKey: "viewsCount",
 
         header: () => (
-          <SortHeader column="viewsCount">
+          <SortHeader column="viewsCount"
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            onSort={onSort}
+          >
             بازدید
           </SortHeader>
         ),
@@ -206,7 +224,11 @@ export function DashboardProductsTable({
         accessorKey: "savesCount",
 
         header: () => (
-          <SortHeader column="savesCount">
+          <SortHeader column="savesCount"
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            onSort={onSort}
+          >
             ذخیره
           </SortHeader>
         ),
@@ -223,20 +245,7 @@ export function DashboardProductsTable({
               id: "actions",
               header: "عملیات",
 
-              cell: (info) => (
-                <div
-                  onClick={(
-                    event:
-                      MouseEvent<HTMLDivElement>,
-                  ) => {
-                    event.stopPropagation()
-                  }}
-                >
-                  {renderActions(
-                    info.row.original,
-                  )}
-                </div>
-              ),
+              cell: (info) => renderActions(info.row.original),
             } satisfies ColumnDef<
               typeof features,
               DashboardProduct
@@ -248,6 +257,7 @@ export function DashboardProductsTable({
       renderActions,
       sortBy,
       sortOrder,
+      onSort,
     ],
   )
 

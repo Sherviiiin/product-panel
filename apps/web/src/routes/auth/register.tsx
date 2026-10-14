@@ -101,9 +101,8 @@ function RegisterPage() {
         }}
       >
         {/* Role */}
-        <form.Field
-          name="role"
-          children={(field) => (
+        <form.Field name="role">
+          {(field) => (
             <div className="space-y-2">
               <Label>نوع حساب</Label>
 
@@ -126,12 +125,11 @@ function RegisterPage() {
               </div>
             </div>
           )}
-        />
+        </form.Field>
 
         {/* Full name */}
-        <form.Field
-          name="fullName"
-          children={(field) => (
+        <form.Field name="fullName">
+          {(field) => (
             <div className="space-y-2">
               <Label htmlFor={field.name}>
                 نام و نام خانوادگی
@@ -150,12 +148,11 @@ function RegisterPage() {
               />
             </div>
           )}
-        />
+        </form.Field>
 
         {/* Username */}
-        <form.Field
-          name="username"
-          children={(field) => (
+        <form.Field name="username">
+          {(field) => (
             <div className="space-y-2">
               <Label htmlFor={field.name}>
                 نام کاربری
@@ -174,12 +171,11 @@ function RegisterPage() {
               />
             </div>
           )}
-        />
+        </form.Field>
 
         {/* Email */}
-        <form.Field
-          name="email"
-          children={(field) => (
+        <form.Field name="email">
+          {(field) => (
             <div className="space-y-2">
               <Label htmlFor={field.name}>
                 ایمیل
@@ -199,12 +195,11 @@ function RegisterPage() {
               />
             </div>
           )}
-        />
+        </form.Field>
 
         {/* Phone */}
-        <form.Field
-          name="phone"
-          children={(field) => (
+        <form.Field name="phone">
+          {(field) => (
             <div className="space-y-2">
               <Label htmlFor={field.name}>
                 شماره تلفن
@@ -223,12 +218,11 @@ function RegisterPage() {
               />
             </div>
           )}
-        />
+        </form.Field>
 
         {/* Password */}
-        <form.Field
-          name="password"
-          children={(field) => (
+        <form.Field name="password">
+          {(field) => (
             <div className="space-y-2">
               <Label htmlFor={field.name}>
                 رمز عبور
@@ -248,12 +242,11 @@ function RegisterPage() {
               />
             </div>
           )}
-        />
+        </form.Field>
 
         {/* Confirm password */}
-        <form.Field
-          name="confirmPassword"
-          children={(field) => (
+        <form.Field name="confirmPassword">
+          {(field) => (
             <div className="space-y-2">
               <Label htmlFor={field.name}>
                 تکرار رمز عبور
@@ -273,16 +266,16 @@ function RegisterPage() {
               />
             </div>
           )}
-        />
+        </form.Field>
 
         {/* Seller-only fields */}
         <form.Subscribe
           selector={(state) => state.values.role}
-          children={(role) => role === "seller" ? (
+        >
+          {(role) => role === "seller" ? (
               <>
-                <form.Field
-                  name="shopName"
-                  children={(field) => (
+                <form.Field name="shopName">
+                  {(field) => (
                     <div className="space-y-2">
                       <Label htmlFor={field.name}>
                         نام فروشگاه
@@ -301,11 +294,10 @@ function RegisterPage() {
                       />
                     </div>
                   )}
-                />
+                </form.Field>
 
-                <form.Field
-                  name="sellerTypeId"
-                  children={(field) => (
+                <form.Field name="sellerTypeId">
+                  {(field) => (
                     <div className="space-y-2">
                       <Label>
                         نوع فروشنده
@@ -331,11 +323,11 @@ function RegisterPage() {
                       />
                     </div>
                   )}
-                />
+                </form.Field>
               </>
             ) : null
           }
-        />
+        </form.Subscribe>
 
         {serverError && (
           <p className="text-sm text-destructive">
@@ -345,7 +337,8 @@ function RegisterPage() {
 
         <form.Subscribe
           selector={(state) => [state.canSubmit, state.isSubmitting,]}
-          children={([canSubmit, isSubmitting]) => (
+        >
+          {([canSubmit, isSubmitting]) => (
             <Button
               type="submit"
               className="w-full"
@@ -354,7 +347,7 @@ function RegisterPage() {
               {isSubmitting ? "در حال ثبت‌نام..." : "ثبت‌نام"}
             </Button>
           )}
-        />
+        </form.Subscribe>
 
         <Link
           to="/auth/login"

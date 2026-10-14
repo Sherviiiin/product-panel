@@ -1,3 +1,5 @@
+import { useId } from "react"
+
 import {
   useMutation,
   useQuery,
@@ -205,6 +207,8 @@ function UserProfileForm({
   profile: DashboardProfile
   onSuccess: () => void
 }) {
+  const formId = useId()
+
   const queryClient =
     useQueryClient()
 
@@ -273,7 +277,7 @@ function UserProfileForm({
       >
         {(field) => (
           <div className="space-y-2">
-            <label className="text-sm font-medium">
+            <label className="text-sm font-medium" htmlFor={`${formId}-${field.name}`}>
               نام و نام خانوادگی
             </label>
 
@@ -286,6 +290,8 @@ function UserProfileForm({
                   event.target.value,
                 )
               }
+
+              id={`${formId}-${field.name}`}
             />
 
             <FieldErrors
@@ -303,7 +309,7 @@ function UserProfileForm({
       >
         {(field) => (
           <div className="space-y-2">
-            <label className="text-sm font-medium">
+            <label className="text-sm font-medium" htmlFor={`${formId}-${field.name}`}>
               نام کاربری
             </label>
 
@@ -317,6 +323,8 @@ function UserProfileForm({
                   event.target.value,
                 )
               }
+
+              id={`${formId}-${field.name}`}
             />
 
             <FieldErrors
@@ -334,7 +342,7 @@ function UserProfileForm({
       >
         {(field) => (
           <div className="space-y-2">
-            <label className="text-sm font-medium">
+            <label className="text-sm font-medium" htmlFor={`${formId}-${field.name}`}>
               لینک تصویر پروفایل
             </label>
 
@@ -349,6 +357,7 @@ function UserProfileForm({
                   event.target.value,
                 )
               }
+              id={`${formId}-${field.name}`}
             />
 
             <FieldErrors
@@ -366,7 +375,7 @@ function UserProfileForm({
       >
         {(field) => (
           <div className="space-y-2">
-            <label className="text-sm font-medium">
+            <label className="text-sm font-medium" htmlFor={`${formId}-${field.name}`}>
               شهر
             </label>
 
@@ -387,6 +396,8 @@ function UserProfileForm({
                 )
               }
               className="h-10 w-full rounded-md border bg-background px-3 text-sm"
+
+              id={`${formId}-${field.name}`}
             >
               <option value="">
                 انتخاب نشده
@@ -439,11 +450,7 @@ function SellerProfileForm({
   profile: DashboardProfile
   onSuccess: () => void
 }) {
-  const queryClient =
-    useQueryClient()
-
-  const seller =
-    profile.seller
+  const seller = profile.seller
 
   if (!seller) {
     return (
@@ -452,6 +459,28 @@ function SellerProfileForm({
       </p>
     )
   }
+
+  return (
+    <SellerProfileFormContent
+      profile={profile}
+      seller={seller}
+      onSuccess={onSuccess}
+    />
+  )
+}
+
+function SellerProfileFormContent({
+  profile,
+  seller,
+  onSuccess,
+}: {
+  profile: DashboardProfile
+  seller: NonNullable<DashboardProfile["seller"]>
+  onSuccess: () => void
+}) {
+  const formId = useId()
+
+  const queryClient = useQueryClient()
 
   const mutation =
     useMutation({
@@ -536,7 +565,7 @@ function SellerProfileForm({
         >
           {(field) => (
             <div className="space-y-2">
-              <label className="text-sm font-medium">
+              <label className="text-sm font-medium" htmlFor={`${formId}-${field.name}`}>
                 نام و نام خانوادگی
               </label>
 
@@ -550,6 +579,8 @@ function SellerProfileForm({
                       .value,
                   )
                 }
+
+                id={`${formId}-${field.name}`}
               />
 
               <FieldErrors
@@ -567,7 +598,7 @@ function SellerProfileForm({
         >
           {(field) => (
             <div className="space-y-2">
-              <label className="text-sm font-medium">
+              <label className="text-sm font-medium" htmlFor={`${formId}-${field.name}`}>
                 نام کاربری
               </label>
 
@@ -582,6 +613,8 @@ function SellerProfileForm({
                       .value,
                   )
                 }
+
+                id={`${formId}-${field.name}`}
               />
 
               <FieldErrors
@@ -599,7 +632,7 @@ function SellerProfileForm({
         >
           {(field) => (
             <div className="space-y-2">
-              <label className="text-sm font-medium">
+              <label className="text-sm font-medium" htmlFor={`${formId}-${field.name}`}>
                 لینک تصویر پروفایل
               </label>
 
@@ -615,6 +648,8 @@ function SellerProfileForm({
                       .value,
                   )
                 }
+
+                id={`${formId}-${field.name}`}
               />
 
               <FieldErrors
@@ -632,7 +667,7 @@ function SellerProfileForm({
         >
           {(field) => (
             <div className="space-y-2">
-              <label className="text-sm font-medium">
+              <label className="text-sm font-medium" htmlFor={`${formId}-${field.name}`}>
                 شهر
               </label>
 
@@ -654,6 +689,8 @@ function SellerProfileForm({
                   )
                 }
                 className="h-10 w-full rounded-md border bg-background px-3 text-sm"
+
+                id={`${formId}-${field.name}`}
               >
                 <option value="">
                   انتخاب نشده
@@ -690,7 +727,7 @@ function SellerProfileForm({
         >
           {(field) => (
             <div className="space-y-2">
-              <label className="text-sm font-medium">
+              <label className="text-sm font-medium" htmlFor={`${formId}-${field.name}`}>
                 نام فروشگاه
               </label>
 
@@ -704,6 +741,8 @@ function SellerProfileForm({
                       .value,
                   )
                 }
+
+                id={`${formId}-${field.name}`}
               />
 
               <FieldErrors
@@ -721,7 +760,7 @@ function SellerProfileForm({
         >
           {(field) => (
             <div className="space-y-2">
-              <label className="text-sm font-medium">
+              <label className="text-sm font-medium" htmlFor={`${formId}-${field.name}`}>
                 لینک تصویر فروشگاه
               </label>
 
@@ -737,6 +776,8 @@ function SellerProfileForm({
                       .value,
                   )
                 }
+
+                id={`${formId}-${field.name}`}
               />
 
               <FieldErrors
@@ -754,7 +795,7 @@ function SellerProfileForm({
         >
           {(field) => (
             <div className="space-y-2">
-              <label className="text-sm font-medium">
+              <label className="text-sm font-medium" htmlFor={`${formId}-${field.name}`}>
                 شهر فروشگاه
               </label>
 
@@ -776,6 +817,8 @@ function SellerProfileForm({
                   )
                 }
                 className="h-10 w-full rounded-md border bg-background px-3 text-sm"
+
+                id={`${formId}-${field.name}`}
               >
                 <option value="">
                   انتخاب نشده
@@ -806,7 +849,7 @@ function SellerProfileForm({
         >
           {(field) => (
             <div className="space-y-2">
-              <label className="text-sm font-medium">
+              <label className="text-sm font-medium" htmlFor={`${formId}-${field.name}`}>
                 نوع فروشنده
               </label>
 
@@ -823,6 +866,8 @@ function SellerProfileForm({
                   )
                 }
                 className="h-10 w-full rounded-md border bg-background px-3 text-sm"
+
+                id={`${formId}-${field.name}`}
               >
                 {profile.sellerTypes.map(
                   (type) => (

@@ -244,11 +244,10 @@ export function UserDashboard() {
           size="sm"
           variant="outline"
           disabled={pending}
-          onClick={() =>
-            likeMutation.mutate(
-              productId,
-            )
-          }
+          onClick={(event) => {
+            event.stopPropagation()
+            likeMutation.mutate(productId)
+          }}
         >
           <Heart className="size-4 fill-current" />
 
@@ -269,11 +268,10 @@ export function UserDashboard() {
           size="sm"
           variant="outline"
           disabled={pending}
-          onClick={() =>
-            saveMutation.mutate(
-              productId,
-            )
-          }
+          onClick={(event) => {
+            event.stopPropagation()
+            saveMutation.mutate(productId)
+          }}
         >
           <Bookmark className="size-4 fill-current" />
 

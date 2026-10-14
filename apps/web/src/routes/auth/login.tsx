@@ -81,9 +81,8 @@ function LoginPage() {
         }}
         className="space-y-5"
       >
-        <form.Field
-          name="role"
-          children={(field) => (
+        <form.Field name="role">
+          {(field) => (
             <div className="space-y-2">
               <Label>نوع حساب</Label>
 
@@ -118,11 +117,10 @@ function LoginPage() {
               </div>
             </div>
           )}
-        />
+        </form.Field>
 
-        <form.Field
-          name="email"
-          children={(field) => (
+        <form.Field name="email">
+          {(field) => (
             <div className="space-y-2">
               <Label htmlFor={field.name}>
                 ایمیل
@@ -141,12 +139,12 @@ function LoginPage() {
                 }
               />
 
-              {field.state.meta.errors.map((error, index) => {
+              {field.state.meta.errors.map((error) => {
                 if (!error) return null
               
                 return (
                   <p
-                    key={index}
+                    key={error.message}
                     className="text-sm text-destructive"
                   >
                     {error.message}
@@ -155,11 +153,10 @@ function LoginPage() {
               })}
             </div>
           )}
-        />
+        </form.Field>
 
-        <form.Field
-          name="password"
-          children={(field) => (
+        <form.Field name="password">
+          {(field) => (
             <div className="space-y-2">
               <Label htmlFor={field.name}>
                 رمز عبور
@@ -178,12 +175,12 @@ function LoginPage() {
                 }
               />
 
-              {field.state.meta.errors.map((error, index) => {
+              {field.state.meta.errors.map((error) => {
                 if (!error) return null
               
                 return (
                   <p
-                    key={index}
+                    key={error.message}
                     className="text-sm text-destructive"
                   >
                     {error.message}
@@ -192,7 +189,7 @@ function LoginPage() {
               })}
             </div>
           )}
-        />
+        </form.Field>
 
         {serverError && (
           <p className="text-sm text-destructive">
@@ -205,7 +202,8 @@ function LoginPage() {
             state.canSubmit,
             state.isSubmitting,
           ]}
-          children={([
+        >
+          {([
             canSubmit,
             isSubmitting,
           ]) => (
@@ -219,7 +217,7 @@ function LoginPage() {
                 : "ورود"}
             </Button>
           )}
-        />
+        </form.Subscribe>
 
         <Link
           to="/auth/register"

@@ -8,6 +8,7 @@ export interface ProductDetail {
   savesCount: number
 
   specs: {
+    id: number
     key: string
     value: string
   }[]

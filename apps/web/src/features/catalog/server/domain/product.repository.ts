@@ -17,6 +17,7 @@ export interface ProductSearchParams {
 }
 
 export interface ProductSpec {
+  id: number
   key: string
   value: string
 }
