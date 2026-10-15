@@ -1,56 +1,39 @@
-import {
-  create,
-} from "zustand"
+import { create } from "zustand";
 
-import {
-  persist,
-} from "zustand/middleware"
+import { persist } from "zustand/middleware";
 
-export type UserDashboardTab =
-  | "saved"
-  | "liked"
-  | "viewed"
+export type UserDashboardTab = "saved" | "liked" | "viewed";
 
-export type SellerDashboardTab =
-  | "listed"
-  | "saved"
-  | "liked"
-  | "viewed"
+export type SellerDashboardTab = "listed" | "saved" | "liked" | "viewed";
 
 type DashboardUiState = {
-  userTab: UserDashboardTab
-  sellerTab: SellerDashboardTab
+  userTab: UserDashboardTab;
+  sellerTab: SellerDashboardTab;
 
-  setUserTab: (
-    tab: UserDashboardTab,
-  ) => void
+  setUserTab: (tab: UserDashboardTab) => void;
 
-  setSellerTab: (
-    tab: SellerDashboardTab,
-  ) => void
-}
+  setSellerTab: (tab: SellerDashboardTab) => void;
+};
 
-export const useDashboardUiStore =
-  create<DashboardUiState>()(
-    persist(
-      (set) => ({
-        userTab: "saved",
+export const useDashboardUiStore = create<DashboardUiState>()(
+  persist(
+    (set) => ({
+      userTab: "saved",
 
-        sellerTab: "listed",
+      sellerTab: "listed",
 
-        setUserTab: (tab) =>
-          set({
-            userTab: tab,
-          }),
+      setUserTab: (tab) =>
+        set({
+          userTab: tab,
+        }),
 
-        setSellerTab: (tab) =>
-          set({
-            sellerTab: tab,
-          }),
-      }),
-      {
-        name:
-          "dashboard-ui",
-      },
-    ),
-  )
+      setSellerTab: (tab) =>
+        set({
+          sellerTab: tab,
+        }),
+    }),
+    {
+      name: "dashboard-ui",
+    },
+  ),
+);

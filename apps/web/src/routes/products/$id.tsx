@@ -1,15 +1,6 @@
-import {
-  useMutation,
-  useQueryClient,
-  useSuspenseQuery,
-} from "@tanstack/react-query"
+import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 
-import {
-  createFileRoute,
-  Link,
-  notFound,
-  useNavigate,
-} from "@tanstack/react-router"
+import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 
 import {
   Bookmark,
@@ -20,46 +11,40 @@ import {
   Package,
   ShoppingBag,
   Store,
-} from "lucide-react"
+} from "lucide-react";
 
-import {
-  productKeys,
-  productQuery,
-} from "@/features/catalog/queries/product.query"
+import { productKeys, productQuery } from "@/features/catalog/queries/product.query";
 
 import {
   toggleProductLike,
   toggleProductSave,
-} from "@/features/catalog/server/functions/product.functions"
+} from "@/features/catalog/server/functions/product.functions";
 
-import type { ProductDetail } from "@/features/catalog/server/domain/product-detail.dto"
+import type { ProductDetail } from "@/features/catalog/server/domain/product-detail.dto";
 
 import {
   Card,
   CardContent,
   //CardHeader,
   //CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 
-import {
-  Button,
-  buttonVariants,
-} from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button";
 
 export const Route = createFileRoute("/products/$id")({
   loader: async ({ context, params }) => {
-    const id = Number(params.id)
+    const id = Number(params.id);
 
     if (!Number.isInteger(id) || id <= 0) {
-      throw notFound()
+      throw notFound();
     }
 
     const product = await context.queryClient.query({
       ...productQuery(id),
-    })
+    });
 
     if (!product) {
-      throw notFound()
+      throw notFound();
     }
   },
 
@@ -77,9 +62,7 @@ export const Route = createFileRoute("/products/$id")({
           </div>
 
           <div className="space-y-2">
-            <h1 className="text-xl font-bold">
-              محصول پیدا نشد
-            </h1>
+            <h1 className="text-xl font-bold">محصول پیدا نشد</h1>
 
             <p className="text-sm text-muted-foreground">
               محصول موردنظر وجود ندارد یا حذف شده است.
@@ -99,19 +82,17 @@ export const Route = createFileRoute("/products/$id")({
       </Card>
     </main>
   ),
-})
+});
 
 function ProductPage() {
-  const { id } = Route.useParams()
+  const { id } = Route.useParams();
 
-  const productId = Number(id)
+  const productId = Number(id);
 
-  const navigate = useNavigate()
-  const queryClient = useQueryClient()
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  const { data: product } = useSuspenseQuery(
-    productQuery(productId),
-  )
+  const { data: product } = useSuspenseQuery(productQuery(productId));
 
   const likeMutation = useMutation({
     mutationFn: () =>
@@ -122,33 +103,27 @@ function ProductPage() {
       }),
 
     onSuccess: (result) => {
-      queryClient.setQueryData<ProductDetail | null>(
-        productKeys.detail(productId),
-        (current) => {
-          if (!current) {
-            return current
-          }
+      queryClient.setQueryData<ProductDetail | null>(productKeys.detail(productId), (current) => {
+        if (!current) {
+          return current;
+        }
 
-          return {
-            ...current,
-            isLiked: result.isLiked,
-            likesCount: result.likesCount,
-          }
-        },
-      )
+        return {
+          ...current,
+          isLiked: result.isLiked,
+          likesCount: result.likesCount,
+        };
+      });
     },
 
     onError: (error) => {
-      if (
-        error instanceof Error &&
-        error.message === "AUTH_REQUIRED"
-      ) {
+      if (error instanceof Error && error.message === "AUTH_REQUIRED") {
         navigate({
           to: "/auth/login",
-        })
+        });
       }
     },
-  })
+  });
 
   const saveMutation = useMutation({
     mutationFn: () =>
@@ -159,56 +134,44 @@ function ProductPage() {
       }),
 
     onSuccess: (result) => {
-      queryClient.setQueryData<ProductDetail | null>(
-        productKeys.detail(productId),
-        (current) => {
-          if (!current) {
-            return current
-          }
+      queryClient.setQueryData<ProductDetail | null>(productKeys.detail(productId), (current) => {
+        if (!current) {
+          return current;
+        }
 
-          return {
-            ...current,
-            isSaved: result.isSaved,
-            savesCount: result.savesCount,
-          }
-        },
-      )
+        return {
+          ...current,
+          isSaved: result.isSaved,
+          savesCount: result.savesCount,
+        };
+      });
     },
 
     onError: (error) => {
-      if (
-        error instanceof Error &&
-        error.message === "AUTH_REQUIRED"
-      ) {
+      if (error instanceof Error && error.message === "AUTH_REQUIRED") {
         navigate({
           to: "/auth/login",
-        })
+        });
       }
     },
-  })
+  });
 
   if (!product) {
-    throw notFound()
+    throw notFound();
   }
 
   const sellers = [...product.sellers].sort(
-    (a, b) =>
-      (a.discountPrice ?? a.price) -
-      (b.discountPrice ?? b.price),
-  )
+    (a, b) => (a.discountPrice ?? a.price) - (b.discountPrice ?? b.price),
+  );
 
-  const cheapestSeller = sellers[0]
+  const cheapestSeller = sellers[0];
 
   const cheapestPrice = cheapestSeller
-    ? cheapestSeller.discountPrice ??
-      cheapestSeller.price
-    : null
+    ? (cheapestSeller.discountPrice ?? cheapestSeller.price)
+    : null;
 
   return (
-    <main
-      dir="rtl"
-      className="mx-auto w-full max-w-[1400px] space-y-6 px-4 py-6 sm:px-6 lg:px-8"
-    >
+    <main dir="rtl" className="mx-auto w-full max-w-[1400px] space-y-6 px-4 py-6 sm:px-6 lg:px-8">
       {/* Breadcrumb */}
       <nav className="flex min-w-0 items-center gap-1 text-sm text-muted-foreground">
         <Link
@@ -221,9 +184,7 @@ function ProductPage() {
 
         <ChevronLeft className="size-4 shrink-0" />
 
-        <span className="truncate text-foreground">
-          {product.name}
-        </span>
+        <span className="truncate text-foreground">{product.name}</span>
       </nav>
 
       {/* Row 1 - Product Information */}
@@ -245,16 +206,14 @@ function ProductPage() {
 
                     {product.categories.length > 0 && (
                       <div className="flex flex-wrap gap-2">
-                        {product.categories.map(
-                          (category) => (
-                            <span
-                              key={category.id}
-                              className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground"
-                            >
-                              {category.name}
-                            </span>
-                          ),
-                        )}
+                        {product.categories.map((category) => (
+                          <span
+                            key={category.id}
+                            className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground"
+                          >
+                            {category.name}
+                          </span>
+                        ))}
                       </div>
                     )}
 
@@ -272,73 +231,37 @@ function ProductPage() {
                   <div className="flex flex-wrap items-center gap-2">
                     <Button
                       type="button"
-                      variant={
-                        product.isLiked
-                          ? "default"
-                          : "outline"
-                      }
+                      variant={product.isLiked ? "default" : "outline"}
                       disabled={likeMutation.isPending}
-                      onClick={() =>
-                        likeMutation.mutate()
-                      }
+                      onClick={() => likeMutation.mutate()}
                       className="gap-2"
                     >
-                      <Heart
-                        className={
-                          product.isLiked
-                            ? "fill-current"
-                            : ""
-                        }
-                      />
+                      <Heart className={product.isLiked ? "fill-current" : ""} />
 
-                      {product.isLiked
-                        ? "پسندیده‌اید"
-                        : "پسندیدن"}
+                      {product.isLiked ? "پسندیده‌اید" : "پسندیدن"}
 
                       <span className="text-xs opacity-70">
-                        {product.likesCount.toLocaleString(
-                          "fa-IR",
-                        )}
+                        {product.likesCount.toLocaleString("fa-IR")}
                       </span>
                     </Button>
 
                     <Button
                       type="button"
-                      variant={
-                        product.isSaved
-                          ? "default"
-                          : "outline"
-                      }
+                      variant={product.isSaved ? "default" : "outline"}
                       disabled={saveMutation.isPending}
-                      onClick={() =>
-                        saveMutation.mutate()
-                      }
+                      onClick={() => saveMutation.mutate()}
                       className="gap-2"
                     >
-                      <Bookmark
-                        className={
-                          product.isSaved
-                            ? "fill-current"
-                            : ""
-                        }
-                      />
+                      <Bookmark className={product.isSaved ? "fill-current" : ""} />
 
-                      {product.isSaved
-                        ? "ذخیره شده"
-                        : "ذخیره"}
+                      {product.isSaved ? "ذخیره شده" : "ذخیره"}
 
-                      {product.isSaved && (
-                        <Check className="size-3.5" />
-                      )}
+                      {product.isSaved && <Check className="size-3.5" />}
                     </Button>
 
                     <div className="flex h-9 items-center gap-2 rounded-md border px-3 text-sm text-muted-foreground">
                       <Eye className="size-4" />
-
-                      {product.viewsCount.toLocaleString(
-                        "fa-IR",
-                      )}
-
+                      {product.viewsCount.toLocaleString("fa-IR")}
                       بازدید
                     </div>
                   </div>
@@ -350,50 +273,37 @@ function ProductPage() {
             <div className="border-t bg-muted/20 p-6 lg:border-r lg:border-t-0">
               <div className="flex h-full flex-col justify-center gap-5">
                 <div>
-                  <p className="mb-1 text-sm text-muted-foreground">
-                    شروع قیمت از
-                  </p>
+                  <p className="mb-1 text-sm text-muted-foreground">شروع قیمت از</p>
 
                   {cheapestPrice !== null ? (
                     <p className="text-2xl font-bold">
-                      {cheapestPrice.toLocaleString(
-                        "fa-IR",
-                      )}
+                      {cheapestPrice.toLocaleString("fa-IR")}
 
-                      <span className="mr-1 text-sm font-normal text-muted-foreground">
-                        تومان
-                      </span>
+                      <span className="mr-1 text-sm font-normal text-muted-foreground">تومان</span>
                     </p>
                   ) : (
-                    <p className="font-medium text-muted-foreground">
-                      قیمت ثبت نشده
-                    </p>
+                    <p className="font-medium text-muted-foreground">قیمت ثبت نشده</p>
                   )}
                 </div>
 
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Store className="size-4" />
-
-                  {sellers.length.toLocaleString(
-                    "fa-IR",
-                  )}{" "}
-                  فروشنده
+                  {sellers.length.toLocaleString("fa-IR")} فروشنده
                 </div>
 
-                {cheapestSeller &&
-                  cheapestSeller.stock > 0 && (
-                    <a
-                      href={cheapestSeller.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className={buttonVariants({
-                        className: "w-full gap-2",
-                      })}
-                    >
-                      <ShoppingBag className="size-4" />
-                      خرید با بهترین قیمت
-                    </a>
-                  )}
+                {cheapestSeller && cheapestSeller.stock > 0 && (
+                  <a
+                    href={cheapestSeller.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={buttonVariants({
+                      className: "w-full gap-2",
+                    })}
+                  >
+                    <ShoppingBag className="size-4" />
+                    خرید با بهترین قیمت
+                  </a>
+                )}
               </div>
             </div>
           </div>
@@ -403,18 +313,11 @@ function ProductPage() {
       {/* Row 2 */}
       <div className="grid gap-6 lg:grid-cols-2 lg:[direction:ltr]">
         {/* Left Column - Specs */}
-        <section
-          dir="rtl"
-          className="min-w-0 space-y-3"
-        >
+        <section dir="rtl" className="min-w-0 space-y-3">
           <div>
-            <h2 className="text-xl font-bold">
-              مشخصات محصول
-            </h2>
+            <h2 className="text-xl font-bold">مشخصات محصول</h2>
 
-            <p className="mt-1 text-sm text-muted-foreground">
-              مشخصات فنی و اطلاعات محصول
-            </p>
+            <p className="mt-1 text-sm text-muted-foreground">مشخصات فنی و اطلاعات محصول</p>
           </div>
 
           <Card className="h-fit overflow-hidden py-0">
@@ -426,20 +329,15 @@ function ProductPage() {
               ) : (
                 <div>
                   {product.specs.map((spec) => (
-                      <div
-                        key={spec.id}
-                        className="grid grid-cols-[130px_1fr] border-b last:border-b-0 sm:grid-cols-[170px_1fr]"
-                      >
-                        <div className="bg-muted/40 px-4 py-4 text-sm font-medium">
-                          {spec.key}
-                        </div>
+                    <div
+                      key={spec.id}
+                      className="grid grid-cols-[130px_1fr] border-b last:border-b-0 sm:grid-cols-[170px_1fr]"
+                    >
+                      <div className="bg-muted/40 px-4 py-4 text-sm font-medium">{spec.key}</div>
 
-                        <div className="break-words px-4 py-4 text-sm">
-                          {spec.value}
-                        </div>
-                      </div>
-                    ),
-                  )}
+                      <div className="break-words px-4 py-4 text-sm">{spec.value}</div>
+                    </div>
+                  ))}
                 </div>
               )}
             </CardContent>
@@ -447,15 +345,10 @@ function ProductPage() {
         </section>
 
         {/* Right Column - Sellers */}
-        <section
-          dir="rtl"
-          className="min-w-0 space-y-3"
-        >
+        <section dir="rtl" className="min-w-0 space-y-3">
           <div className="flex items-end justify-between gap-4">
             <div>
-              <h2 className="text-xl font-bold">
-                فروشندگان
-              </h2>
+              <h2 className="text-xl font-bold">فروشندگان</h2>
 
               <p className="mt-1 text-sm text-muted-foreground">
                 مرتب‌شده بر اساس کمترین قیمت نهایی
@@ -463,10 +356,7 @@ function ProductPage() {
             </div>
 
             <span className="shrink-0 text-sm text-muted-foreground">
-              {sellers.length.toLocaleString(
-                "fa-IR",
-              )}{" "}
-              فروشنده
+              {sellers.length.toLocaleString("fa-IR")} فروشنده
             </span>
           </div>
 
@@ -478,107 +368,81 @@ function ProductPage() {
             </Card>
           ) : (
             <div className="space-y-3">
-              {sellers.map(
-                (seller, index) => {
-                  const finalPrice =
-                    seller.discountPrice ??
-                    seller.price
+              {sellers.map((seller, index) => {
+                const finalPrice = seller.discountPrice ?? seller.price;
 
-                  const hasDiscount =
-                    seller.discountPrice !== null
+                const hasDiscount = seller.discountPrice !== null;
 
-                  return (
-                    <Card
-                      key={seller.id}
-                      className={
-                        index === 0
-                          ? "border-primary/40"
-                          : ""
-                      }
-                    >
-                      <CardContent className="p-4">
-                        <div className="flex flex-col gap-4">
-                          <div className="flex min-w-0 items-center gap-3">
-                            <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted">
-                              <Store className="size-5 text-muted-foreground" />
-                            </div>
-
-                            <div className="min-w-0 flex-1">
-                              <div className="flex flex-wrap items-center gap-2">
-                                <p className="truncate font-semibold">
-                                  {seller.shopName}
-                                </p>
-
-                                {index === 0 && (
-                                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-                                    بهترین قیمت
-                                  </span>
-                                )}
-                              </div>
-
-                              <p className="mt-1 text-sm text-muted-foreground">
-                                {seller.stock > 0
-                                  ? `موجودی ${seller.stock.toLocaleString(
-                                      "fa-IR",
-                                    )}`
-                                  : "ناموجود"}
-                              </p>
-                            </div>
+                return (
+                  <Card key={seller.id} className={index === 0 ? "border-primary/40" : ""}>
+                    <CardContent className="p-4">
+                      <div className="flex flex-col gap-4">
+                        <div className="flex min-w-0 items-center gap-3">
+                          <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted">
+                            <Store className="size-5 text-muted-foreground" />
                           </div>
 
-                          <div className="flex items-end justify-between gap-4 border-t pt-3">
-                            <div>
-                              {hasDiscount && (
-                                <p className="text-xs text-muted-foreground line-through">
-                                  {seller.price.toLocaleString(
-                                    "fa-IR",
-                                  )}{" "}
-                                  تومان
-                                </p>
-                              )}
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <p className="truncate font-semibold">{seller.shopName}</p>
 
-                              <p className="font-bold">
-                                {finalPrice.toLocaleString(
-                                  "fa-IR",
-                                )}{" "}
-                                <span className="text-xs font-normal text-muted-foreground">
-                                  تومان
+                              {index === 0 && (
+                                <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                                  بهترین قیمت
                                 </span>
-                              </p>
+                              )}
                             </div>
 
-                            {seller.stock > 0 ? (
-                              <a
-                                href={seller.url}
-                                target="_blank"
-                                rel="noreferrer"
-                                className={buttonVariants({
-                                  size: "sm",
-                                })}
-                              >
-                                خرید
-                              </a>
-                            ) : (
-                              <Button
-                                type="button"
-                                size="sm"
-                                variant="outline"
-                                disabled
-                              >
-                                ناموجود
-                              </Button>
-                            )}
+                            <p className="mt-1 text-sm text-muted-foreground">
+                              {seller.stock > 0
+                                ? `موجودی ${seller.stock.toLocaleString("fa-IR")}`
+                                : "ناموجود"}
+                            </p>
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
-                  )
-                },
-              )}
+
+                        <div className="flex items-end justify-between gap-4 border-t pt-3">
+                          <div>
+                            {hasDiscount && (
+                              <p className="text-xs text-muted-foreground line-through">
+                                {seller.price.toLocaleString("fa-IR")} تومان
+                              </p>
+                            )}
+
+                            <p className="font-bold">
+                              {finalPrice.toLocaleString("fa-IR")}{" "}
+                              <span className="text-xs font-normal text-muted-foreground">
+                                تومان
+                              </span>
+                            </p>
+                          </div>
+
+                          {seller.stock > 0 ? (
+                            <a
+                              href={seller.url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className={buttonVariants({
+                                size: "sm",
+                              })}
+                            >
+                              خرید
+                            </a>
+                          ) : (
+                            <Button type="button" size="sm" variant="outline" disabled>
+                              ناموجود
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           )}
         </section>
       </div>
     </main>
-  )
+  );
 }

@@ -1,43 +1,30 @@
-import { useId } from "react"
+import { useId } from "react";
 
-import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import {
-  useForm,
-} from "@tanstack/react-form"
+import { useForm } from "@tanstack/react-form";
 
 import type {
   DashboardProfile,
   UpdateSellerDashboardProfileInput,
   UpdateUserDashboardProfileInput,
-} from "../dashboard.schema"
+} from "../dashboard.schema";
 
 import {
   updateSellerDashboardProfileSchema,
   updateUserDashboardProfileSchema,
-} from "../dashboard.schema"
+} from "../dashboard.schema";
 
-import {
-  dashboardKeys,
-  dashboardProfileQuery,
-} from "../queries/dashboard.query"
+import { dashboardKeys, dashboardProfileQuery } from "../queries/dashboard.query";
 
 import {
   updateDashboardSellerProfile,
   updateDashboardUserProfile,
-} from "../server/functions/dashboard.functions"
+} from "../server/functions/dashboard.functions";
 
-import {
-  Button,
-} from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 
-import {
-  Input,
-} from "@/components/ui/input"
+import { Input } from "@/components/ui/input";
 
 import {
   Dialog,
@@ -45,95 +32,56 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 
 type Props = {
-  open: boolean
-  isSeller: boolean
+  open: boolean;
+  isSeller: boolean;
 
-  onOpenChange: (
-    open: boolean,
-  ) => void
+  onOpenChange: (open: boolean) => void;
+};
+
+function FieldErrors({ errors }: { errors: readonly unknown[] }) {
+  return errors.map((error, index) => {
+    if (!error) {
+      return null;
+    }
+
+    const message =
+      typeof error === "object" && error !== null && "message" in error
+        ? String(error.message)
+        : String(error);
+
+    return (
+      <p key={index} className="text-xs text-destructive">
+        {message}
+      </p>
+    );
+  });
 }
 
-function FieldErrors({
-  errors,
-}: {
-  errors: readonly unknown[]
-}) {
-  return errors.map(
-    (error, index) => {
-      if (!error) {
-        return null
-      }
-
-      const message =
-        typeof error ===
-          "object" &&
-        error !== null &&
-        "message" in error
-          ? String(
-              error.message,
-            )
-          : String(error)
-
-      return (
-        <p
-          key={index}
-          className="text-xs text-destructive"
-        >
-          {message}
-        </p>
-      )
-    },
-  )
-}
-
-function mutationErrorMessage(
-  error: unknown,
-) {
-  if (
-    error instanceof Error &&
-    error.message ===
-      "USERNAME_TAKEN"
-  ) {
-    return "این نام کاربری قبلاً استفاده شده است."
+function mutationErrorMessage(error: unknown) {
+  if (error instanceof Error && error.message === "USERNAME_TAKEN") {
+    return "این نام کاربری قبلاً استفاده شده است.";
   }
 
-  return "ذخیره اطلاعات انجام نشد."
+  return "ذخیره اطلاعات انجام نشد.";
 }
 
-export function DashboardProfileEditDialog({
-  open,
-  isSeller,
-  onOpenChange,
-}: Props) {
-  const profileQuery =
-    useQuery({
-      ...dashboardProfileQuery(),
+export function DashboardProfileEditDialog({ open, isSeller, onOpenChange }: Props) {
+  const profileQuery = useQuery({
+    ...dashboardProfileQuery(),
 
-      enabled: open,
-    })
+    enabled: open,
+  });
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={
-        onOpenChange
-      }
-    >
-      <DialogContent
-        dir="rtl"
-        className="max-h-[90vh] overflow-y-auto sm:max-w-xl"
-      >
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent dir="rtl" className="max-h-[90vh] overflow-y-auto sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>
-            ویرایش پروفایل
-          </DialogTitle>
+          <DialogTitle>ویرایش پروفایل</DialogTitle>
 
-          <DialogDescription>
-            اطلاعات پروفایل خود را ویرایش کنید.
-          </DialogDescription>
+          <DialogDescription>اطلاعات پروفایل خود را ویرایش کنید.</DialogDescription>
         </DialogHeader>
 
         {profileQuery.isPending ? (
@@ -141,140 +89,91 @@ export function DashboardProfileEditDialog({
             در حال دریافت اطلاعات...
           </div>
         ) : profileQuery.isError ? (
-          <p className="text-sm text-destructive">
-            دریافت اطلاعات پروفایل انجام نشد.
-          </p>
+          <p className="text-sm text-destructive">دریافت اطلاعات پروفایل انجام نشد.</p>
         ) : profileQuery.data ? (
           <div className="space-y-5">
             <div className="grid gap-3 rounded-lg border bg-muted/30 p-4 text-sm sm:grid-cols-2">
               <div>
-                <span className="text-muted-foreground">
-                  ایمیل:
-                </span>{" "}
-
-                {
-                  profileQuery.data
-                    .email
-                }
+                <span className="text-muted-foreground">ایمیل:</span> {profileQuery.data.email}
               </div>
 
               <div>
-                <span className="text-muted-foreground">
-                  شماره تماس:
-                </span>{" "}
-
-                {
-                  profileQuery.data
-                    .phone
-                }
+                <span className="text-muted-foreground">شماره تماس:</span> {profileQuery.data.phone}
               </div>
             </div>
 
             {isSeller ? (
               <SellerProfileForm
-                profile={
-                  profileQuery.data
-                }
-                onSuccess={() =>
-                  onOpenChange(
-                    false,
-                  )
-                }
+                profile={profileQuery.data}
+                onSuccess={() => onOpenChange(false)}
               />
             ) : (
-              <UserProfileForm
-                profile={
-                  profileQuery.data
-                }
-                onSuccess={() =>
-                  onOpenChange(
-                    false,
-                  )
-                }
-              />
+              <UserProfileForm profile={profileQuery.data} onSuccess={() => onOpenChange(false)} />
             )}
           </div>
         ) : null}
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
 function UserProfileForm({
   profile,
   onSuccess,
 }: {
-  profile: DashboardProfile
-  onSuccess: () => void
+  profile: DashboardProfile;
+  onSuccess: () => void;
 }) {
-  const formId = useId()
+  const formId = useId();
 
-  const queryClient =
-    useQueryClient()
+  const queryClient = useQueryClient();
 
-  const mutation =
-    useMutation({
-      mutationFn: (
-        data: UpdateUserDashboardProfileInput,
-      ) =>
-        updateDashboardUserProfile({
-          data,
-        }),
+  const mutation = useMutation({
+    mutationFn: (data: UpdateUserDashboardProfileInput) =>
+      updateDashboardUserProfile({
+        data,
+      }),
 
-      onSuccess: async () => {
-        await queryClient.invalidateQueries({
-          queryKey:
-            dashboardKeys.profile,
-        })
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: dashboardKeys.profile,
+      });
 
-        onSuccess()
-      },
-    })
+      onSuccess();
+    },
+  });
 
-  const form =
-    useForm({
-      defaultValues: {
-        fullName:
-          profile.fullName,
+  const form = useForm({
+    defaultValues: {
+      fullName: profile.fullName,
 
-        username:
-          profile.username,
+      username: profile.username,
 
-        avatar:
-          profile.avatar ??
-          "",
+      avatar: profile.avatar ?? "",
 
-        cityId:
-          profile.cityId,
-      },
+      cityId: profile.cityId,
+    },
 
-      validators: {
-        onSubmit:
-          updateUserDashboardProfileSchema,
-      },
+    validators: {
+      onSubmit: updateUserDashboardProfileSchema,
+    },
 
-      onSubmit: async ({
-        value,
-      }) => {
-        await mutation.mutateAsync(
-          value,
-        )
-      },
-    })
+    onSubmit: async ({ value }) => {
+      await mutation.mutateAsync(value);
+    },
+  });
 
   return (
     <form
       className="space-y-4"
       onSubmit={(event) => {
-        event.preventDefault()
-        event.stopPropagation()
+        event.preventDefault();
+        event.stopPropagation();
 
-        form.handleSubmit()
+        form.handleSubmit();
       }}
     >
-      <form.Field
-        name="fullName"
-      >
+      <form.Field name="fullName">
         {(field) => (
           <div className="space-y-2">
             <label className="text-sm font-medium" htmlFor={`${formId}-${field.name}`}>
@@ -282,31 +181,17 @@ function UserProfileForm({
             </label>
 
             <Input
-              value={
-                field.state.value
-              }
-              onChange={(event) =>
-                field.handleChange(
-                  event.target.value,
-                )
-              }
-
+              value={field.state.value}
+              onChange={(event) => field.handleChange(event.target.value)}
               id={`${formId}-${field.name}`}
             />
 
-            <FieldErrors
-              errors={
-                field.state.meta
-                  .errors
-              }
-            />
+            <FieldErrors errors={field.state.meta.errors} />
           </div>
         )}
       </form.Field>
 
-      <form.Field
-        name="username"
-      >
+      <form.Field name="username">
         {(field) => (
           <div className="space-y-2">
             <label className="text-sm font-medium" htmlFor={`${formId}-${field.name}`}>
@@ -315,31 +200,17 @@ function UserProfileForm({
 
             <Input
               dir="ltr"
-              value={
-                field.state.value
-              }
-              onChange={(event) =>
-                field.handleChange(
-                  event.target.value,
-                )
-              }
-
+              value={field.state.value}
+              onChange={(event) => field.handleChange(event.target.value)}
               id={`${formId}-${field.name}`}
             />
 
-            <FieldErrors
-              errors={
-                field.state.meta
-                  .errors
-              }
-            />
+            <FieldErrors errors={field.state.meta.errors} />
           </div>
         )}
       </form.Field>
 
-      <form.Field
-        name="avatar"
-      >
+      <form.Field name="avatar">
         {(field) => (
           <div className="space-y-2">
             <label className="text-sm font-medium" htmlFor={`${formId}-${field.name}`}>
@@ -349,30 +220,17 @@ function UserProfileForm({
             <Input
               dir="ltr"
               placeholder="اختیاری"
-              value={
-                field.state.value
-              }
-              onChange={(event) =>
-                field.handleChange(
-                  event.target.value,
-                )
-              }
+              value={field.state.value}
+              onChange={(event) => field.handleChange(event.target.value)}
               id={`${formId}-${field.name}`}
             />
 
-            <FieldErrors
-              errors={
-                field.state.meta
-                  .errors
-              }
-            />
+            <FieldErrors errors={field.state.meta.errors} />
           </div>
         )}
       </form.Field>
 
-      <form.Field
-        name="cityId"
-      >
+      <form.Field name="cityId">
         {(field) => (
           <div className="space-y-2">
             <label className="text-sm font-medium" htmlFor={`${formId}-${field.name}`}>
@@ -380,93 +238,52 @@ function UserProfileForm({
             </label>
 
             <select
-              value={
-                field.state.value ??
-                ""
-              }
+              value={field.state.value ?? ""}
               onChange={(event) =>
-                field.handleChange(
-                  event.target
-                    .value === ""
-                    ? null
-                    : Number(
-                        event.target
-                          .value,
-                      ),
-                )
+                field.handleChange(event.target.value === "" ? null : Number(event.target.value))
               }
               className="h-10 w-full rounded-md border bg-background px-3 text-sm"
-
               id={`${formId}-${field.name}`}
             >
-              <option value="">
-                انتخاب نشده
-              </option>
+              <option value="">انتخاب نشده</option>
 
-              {profile.cities.map(
-                (city) => (
-                  <option
-                    key={city.id}
-                    value={city.id}
-                  >
-                    {city.province} -{" "}
-                    {city.city}
-                  </option>
-                ),
-              )}
+              {profile.cities.map((city) => (
+                <option key={city.id} value={city.id}>
+                  {city.province} - {city.city}
+                </option>
+              ))}
             </select>
           </div>
         )}
       </form.Field>
 
       {mutation.isError && (
-        <p className="text-sm text-destructive">
-          {mutationErrorMessage(
-            mutation.error,
-          )}
-        </p>
+        <p className="text-sm text-destructive">{mutationErrorMessage(mutation.error)}</p>
       )}
 
       <div className="flex justify-end pt-2">
-        <Button
-          type="submit"
-          disabled={
-            mutation.isPending
-          }
-        >
-          {mutation.isPending
-            ? "در حال ذخیره..."
-            : "ذخیره تغییرات"}
+        <Button type="submit" disabled={mutation.isPending}>
+          {mutation.isPending ? "در حال ذخیره..." : "ذخیره تغییرات"}
         </Button>
       </div>
     </form>
-  )
+  );
 }
 
 function SellerProfileForm({
   profile,
   onSuccess,
 }: {
-  profile: DashboardProfile
-  onSuccess: () => void
+  profile: DashboardProfile;
+  onSuccess: () => void;
 }) {
-  const seller = profile.seller
+  const seller = profile.seller;
 
   if (!seller) {
-    return (
-      <p className="text-sm text-destructive">
-        پروفایل فروشنده پیدا نشد.
-      </p>
-    )
+    return <p className="text-sm text-destructive">پروفایل فروشنده پیدا نشد.</p>;
   }
 
-  return (
-    <SellerProfileFormContent
-      profile={profile}
-      seller={seller}
-      onSuccess={onSuccess}
-    />
-  )
+  return <SellerProfileFormContent profile={profile} seller={seller} onSuccess={onSuccess} />;
 }
 
 function SellerProfileFormContent({
@@ -474,95 +291,71 @@ function SellerProfileFormContent({
   seller,
   onSuccess,
 }: {
-  profile: DashboardProfile
-  seller: NonNullable<DashboardProfile["seller"]>
-  onSuccess: () => void
+  profile: DashboardProfile;
+  seller: NonNullable<DashboardProfile["seller"]>;
+  onSuccess: () => void;
 }) {
-  const formId = useId()
+  const formId = useId();
 
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
-  const mutation =
-    useMutation({
-      mutationFn: (
-        data: UpdateSellerDashboardProfileInput,
-      ) =>
-        updateDashboardSellerProfile({
-          data,
-        }),
+  const mutation = useMutation({
+    mutationFn: (data: UpdateSellerDashboardProfileInput) =>
+      updateDashboardSellerProfile({
+        data,
+      }),
 
-      onSuccess: async () => {
-        await queryClient.invalidateQueries({
-          queryKey:
-            dashboardKeys.profile,
-        })
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: dashboardKeys.profile,
+      });
 
-        onSuccess()
-      },
-    })
+      onSuccess();
+    },
+  });
 
-  const form =
-    useForm({
-      defaultValues: {
-        fullName:
-          profile.fullName,
+  const form = useForm({
+    defaultValues: {
+      fullName: profile.fullName,
 
-        username:
-          profile.username,
+      username: profile.username,
 
-        avatar:
-          profile.avatar ??
-          "",
+      avatar: profile.avatar ?? "",
 
-        cityId:
-          profile.cityId,
+      cityId: profile.cityId,
 
-        shopName:
-          seller.shopName,
+      shopName: seller.shopName,
 
-        sellerAvatar:
-          seller.avatar ??
-          "",
+      sellerAvatar: seller.avatar ?? "",
 
-        sellerCityId:
-          seller.cityId,
+      sellerCityId: seller.cityId,
 
-        sellerTypeId:
-          seller.sellerTypeId,
-      },
+      sellerTypeId: seller.sellerTypeId,
+    },
 
-      validators: {
-        onSubmit:
-          updateSellerDashboardProfileSchema,
-      },
+    validators: {
+      onSubmit: updateSellerDashboardProfileSchema,
+    },
 
-      onSubmit: async ({
-        value,
-      }) => {
-        await mutation.mutateAsync(
-          value,
-        )
-      },
-    })
+    onSubmit: async ({ value }) => {
+      await mutation.mutateAsync(value);
+    },
+  });
 
   return (
     <form
       className="space-y-5"
       onSubmit={(event) => {
-        event.preventDefault()
-        event.stopPropagation()
+        event.preventDefault();
+        event.stopPropagation();
 
-        form.handleSubmit()
+        form.handleSubmit();
       }}
     >
       <div className="space-y-4">
-        <p className="text-sm font-semibold">
-          اطلاعات حساب
-        </p>
+        <p className="text-sm font-semibold">اطلاعات حساب</p>
 
-        <form.Field
-          name="fullName"
-        >
+        <form.Field name="fullName">
           {(field) => (
             <div className="space-y-2">
               <label className="text-sm font-medium" htmlFor={`${formId}-${field.name}`}>
@@ -570,32 +363,17 @@ function SellerProfileFormContent({
               </label>
 
               <Input
-                value={
-                  field.state.value
-                }
-                onChange={(event) =>
-                  field.handleChange(
-                    event.target
-                      .value,
-                  )
-                }
-
+                value={field.state.value}
+                onChange={(event) => field.handleChange(event.target.value)}
                 id={`${formId}-${field.name}`}
               />
 
-              <FieldErrors
-                errors={
-                  field.state.meta
-                    .errors
-                }
-              />
+              <FieldErrors errors={field.state.meta.errors} />
             </div>
           )}
         </form.Field>
 
-        <form.Field
-          name="username"
-        >
+        <form.Field name="username">
           {(field) => (
             <div className="space-y-2">
               <label className="text-sm font-medium" htmlFor={`${formId}-${field.name}`}>
@@ -604,32 +382,17 @@ function SellerProfileFormContent({
 
               <Input
                 dir="ltr"
-                value={
-                  field.state.value
-                }
-                onChange={(event) =>
-                  field.handleChange(
-                    event.target
-                      .value,
-                  )
-                }
-
+                value={field.state.value}
+                onChange={(event) => field.handleChange(event.target.value)}
                 id={`${formId}-${field.name}`}
               />
 
-              <FieldErrors
-                errors={
-                  field.state.meta
-                    .errors
-                }
-              />
+              <FieldErrors errors={field.state.meta.errors} />
             </div>
           )}
         </form.Field>
 
-        <form.Field
-          name="avatar"
-        >
+        <form.Field name="avatar">
           {(field) => (
             <div className="space-y-2">
               <label className="text-sm font-medium" htmlFor={`${formId}-${field.name}`}>
@@ -639,32 +402,17 @@ function SellerProfileFormContent({
               <Input
                 dir="ltr"
                 placeholder="اختیاری"
-                value={
-                  field.state.value
-                }
-                onChange={(event) =>
-                  field.handleChange(
-                    event.target
-                      .value,
-                  )
-                }
-
+                value={field.state.value}
+                onChange={(event) => field.handleChange(event.target.value)}
                 id={`${formId}-${field.name}`}
               />
 
-              <FieldErrors
-                errors={
-                  field.state.meta
-                    .errors
-                }
-              />
+              <FieldErrors errors={field.state.meta.errors} />
             </div>
           )}
         </form.Field>
 
-        <form.Field
-          name="cityId"
-        >
+        <form.Field name="cityId">
           {(field) => (
             <div className="space-y-2">
               <label className="text-sm font-medium" htmlFor={`${formId}-${field.name}`}>
@@ -672,45 +420,20 @@ function SellerProfileFormContent({
               </label>
 
               <select
-                value={
-                  field.state
-                    .value ?? ""
-                }
+                value={field.state.value ?? ""}
                 onChange={(event) =>
-                  field.handleChange(
-                    event.target
-                      .value === ""
-                      ? null
-                      : Number(
-                          event
-                            .target
-                            .value,
-                        ),
-                  )
+                  field.handleChange(event.target.value === "" ? null : Number(event.target.value))
                 }
                 className="h-10 w-full rounded-md border bg-background px-3 text-sm"
-
                 id={`${formId}-${field.name}`}
               >
-                <option value="">
-                  انتخاب نشده
-                </option>
+                <option value="">انتخاب نشده</option>
 
-                {profile.cities.map(
-                  (city) => (
-                    <option
-                      key={city.id}
-                      value={
-                        city.id
-                      }
-                    >
-                      {
-                        city.province
-                      }{" "}
-                      - {city.city}
-                    </option>
-                  ),
-                )}
+                {profile.cities.map((city) => (
+                  <option key={city.id} value={city.id}>
+                    {city.province} - {city.city}
+                  </option>
+                ))}
               </select>
             </div>
           )}
@@ -718,13 +441,9 @@ function SellerProfileFormContent({
       </div>
 
       <div className="space-y-4 border-t pt-5">
-        <p className="text-sm font-semibold">
-          اطلاعات فروشگاه
-        </p>
+        <p className="text-sm font-semibold">اطلاعات فروشگاه</p>
 
-        <form.Field
-          name="shopName"
-        >
+        <form.Field name="shopName">
           {(field) => (
             <div className="space-y-2">
               <label className="text-sm font-medium" htmlFor={`${formId}-${field.name}`}>
@@ -732,32 +451,17 @@ function SellerProfileFormContent({
               </label>
 
               <Input
-                value={
-                  field.state.value
-                }
-                onChange={(event) =>
-                  field.handleChange(
-                    event.target
-                      .value,
-                  )
-                }
-
+                value={field.state.value}
+                onChange={(event) => field.handleChange(event.target.value)}
                 id={`${formId}-${field.name}`}
               />
 
-              <FieldErrors
-                errors={
-                  field.state.meta
-                    .errors
-                }
-              />
+              <FieldErrors errors={field.state.meta.errors} />
             </div>
           )}
         </form.Field>
 
-        <form.Field
-          name="sellerAvatar"
-        >
+        <form.Field name="sellerAvatar">
           {(field) => (
             <div className="space-y-2">
               <label className="text-sm font-medium" htmlFor={`${formId}-${field.name}`}>
@@ -767,32 +471,17 @@ function SellerProfileFormContent({
               <Input
                 dir="ltr"
                 placeholder="اختیاری"
-                value={
-                  field.state.value
-                }
-                onChange={(event) =>
-                  field.handleChange(
-                    event.target
-                      .value,
-                  )
-                }
-
+                value={field.state.value}
+                onChange={(event) => field.handleChange(event.target.value)}
                 id={`${formId}-${field.name}`}
               />
 
-              <FieldErrors
-                errors={
-                  field.state.meta
-                    .errors
-                }
-              />
+              <FieldErrors errors={field.state.meta.errors} />
             </div>
           )}
         </form.Field>
 
-        <form.Field
-          name="sellerCityId"
-        >
+        <form.Field name="sellerCityId">
           {(field) => (
             <div className="space-y-2">
               <label className="text-sm font-medium" htmlFor={`${formId}-${field.name}`}>
@@ -800,53 +489,26 @@ function SellerProfileFormContent({
               </label>
 
               <select
-                value={
-                  field.state
-                    .value ?? ""
-                }
+                value={field.state.value ?? ""}
                 onChange={(event) =>
-                  field.handleChange(
-                    event.target
-                      .value === ""
-                      ? null
-                      : Number(
-                          event
-                            .target
-                            .value,
-                        ),
-                  )
+                  field.handleChange(event.target.value === "" ? null : Number(event.target.value))
                 }
                 className="h-10 w-full rounded-md border bg-background px-3 text-sm"
-
                 id={`${formId}-${field.name}`}
               >
-                <option value="">
-                  انتخاب نشده
-                </option>
+                <option value="">انتخاب نشده</option>
 
-                {profile.cities.map(
-                  (city) => (
-                    <option
-                      key={city.id}
-                      value={
-                        city.id
-                      }
-                    >
-                      {
-                        city.province
-                      }{" "}
-                      - {city.city}
-                    </option>
-                  ),
-                )}
+                {profile.cities.map((city) => (
+                  <option key={city.id} value={city.id}>
+                    {city.province} - {city.city}
+                  </option>
+                ))}
               </select>
             </div>
           )}
         </form.Field>
 
-        <form.Field
-          name="sellerTypeId"
-        >
+        <form.Field name="sellerTypeId">
           {(field) => (
             <div className="space-y-2">
               <label className="text-sm font-medium" htmlFor={`${formId}-${field.name}`}>
@@ -854,33 +516,16 @@ function SellerProfileFormContent({
               </label>
 
               <select
-                value={
-                  field.state.value
-                }
-                onChange={(event) =>
-                  field.handleChange(
-                    Number(
-                      event.target
-                        .value,
-                    ),
-                  )
-                }
+                value={field.state.value}
+                onChange={(event) => field.handleChange(Number(event.target.value))}
                 className="h-10 w-full rounded-md border bg-background px-3 text-sm"
-
                 id={`${formId}-${field.name}`}
               >
-                {profile.sellerTypes.map(
-                  (type) => (
-                    <option
-                      key={type.id}
-                      value={
-                        type.id
-                      }
-                    >
-                      {type.name}
-                    </option>
-                  ),
-                )}
+                {profile.sellerTypes.map((type) => (
+                  <option key={type.id} value={type.id}>
+                    {type.name}
+                  </option>
+                ))}
               </select>
             </div>
           )}
@@ -888,25 +533,14 @@ function SellerProfileFormContent({
       </div>
 
       {mutation.isError && (
-        <p className="text-sm text-destructive">
-          {mutationErrorMessage(
-            mutation.error,
-          )}
-        </p>
+        <p className="text-sm text-destructive">{mutationErrorMessage(mutation.error)}</p>
       )}
 
       <div className="flex justify-end pt-2">
-        <Button
-          type="submit"
-          disabled={
-            mutation.isPending
-          }
-        >
-          {mutation.isPending
-            ? "در حال ذخیره..."
-            : "ذخیره تغییرات"}
+        <Button type="submit" disabled={mutation.isPending}>
+          {mutation.isPending ? "در حال ذخیره..." : "ذخیره تغییرات"}
         </Button>
       </div>
     </form>
-  )
+  );
 }

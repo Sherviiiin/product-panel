@@ -1,8 +1,8 @@
-import { queryOptions } from "@tanstack/react-query"
+import { queryOptions } from "@tanstack/react-query";
 
-import type { ProductsListInput } from "../catalog.schema"
+import type { ProductsListInput } from "../catalog.schema";
 
-import { getProduct, searchProducts } from "../server/functions/product.functions"
+import { getProduct, searchProducts } from "../server/functions/product.functions";
 
 export const productKeys = {
   all: ["products"] as const,
@@ -11,7 +11,7 @@ export const productKeys = {
   // ["products", "detail", 10] مثل این
 
   search: (params: ProductsListInput) => [...productKeys.all, "search", params] as const,
-}
+};
 
 export function productQuery(id: number) {
   return queryOptions({
@@ -22,7 +22,7 @@ export function productQuery(id: number) {
       getProduct({
         data: { id },
       }),
-  })
+  });
 }
 
 export function productsQuery(params: ProductsListInput) {
@@ -33,5 +33,5 @@ export function productsQuery(params: ProductsListInput) {
       searchProducts({
         data: params,
       }),
-  })
+  });
 }

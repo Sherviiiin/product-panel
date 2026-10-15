@@ -1,37 +1,31 @@
-import {
-  useEffect,
-  useState,
-} from "react"
+import { useEffect, useState } from "react";
 
-import { useNavigate } from "@tanstack/react-router"
-import { Search } from "lucide-react"
+import { useNavigate } from "@tanstack/react-router";
+import { Search } from "lucide-react";
 
-import type { ProductSearchParams } from "../catalog.search-params"
+import type { ProductSearchParams } from "../catalog.search-params";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 type ProductSearchBarProps = {
-  search: Partial<ProductSearchParams>
-}
+  search: Partial<ProductSearchParams>;
+};
 
-export function ProductSearchBar({
-  search,
-}: ProductSearchBarProps) {
-  const navigate = useNavigate()
+export function ProductSearchBar({ search }: ProductSearchBarProps) {
+  const navigate = useNavigate();
 
-  const [searchText, setSearchText] =
-    useState(search.search ?? "")
+  const [searchText, setSearchText] = useState(search.search ?? "");
 
   useEffect(() => {
-    setSearchText(search.search ?? "")
-  }, [search.search])
+    setSearchText(search.search ?? "");
+  }, [search.search]);
 
   function submitSearch() {
-    const value = searchText.trim()
+    const value = searchText.trim();
 
     if (!value) {
-      return
+      return;
     }
 
     navigate({
@@ -41,14 +35,14 @@ export function ProductSearchBar({
         search: value,
         page: 1,
       },
-    })
+    });
   }
 
   return (
     <form
       onSubmit={(event) => {
-        event.preventDefault()
-        submitSearch()
+        event.preventDefault();
+        submitSearch();
       }}
       className="flex w-full gap-2"
     >
@@ -57,22 +51,15 @@ export function ProductSearchBar({
 
         <Input
           value={searchText}
-          onChange={(event) =>
-            setSearchText(
-              event.target.value,
-            )
-          }
+          onChange={(event) => setSearchText(event.target.value)}
           placeholder="نام محصول موردنظر را جستجو کنید..."
           className="h-11 pr-10"
         />
       </div>
 
-      <Button
-        type="submit"
-        className="h-11 px-6"
-      >
+      <Button type="submit" className="h-11 px-6">
         جستجو
       </Button>
     </form>
-  )
+  );
 }

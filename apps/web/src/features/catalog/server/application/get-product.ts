@@ -1,18 +1,17 @@
-import type { ProductRepository } from "../domain/product.repository"
-import type { ProductDetail } from "../domain/product-detail.dto"
+import type { ProductRepository } from "../domain/product.repository";
+import type { ProductDetail } from "../domain/product-detail.dto";
 
 export class GetProduct {
-
   constructor(private productRepository: ProductRepository) {}
 
   async execute(id: number, userId?: number): Promise<ProductDetail | null> {
-    const product = await this.productRepository.findById(id)
+    const product = await this.productRepository.findById(id);
 
     //if (!product) {
     //  throw new Error("Product not found")
     //}
     if (!product) {
-      return null
+      return null;
     }
 
     const [specs, categories, sellers, interaction] = await Promise.all([
@@ -21,12 +20,14 @@ export class GetProduct {
       this.productRepository.findCategoriesByProductId(id),
 
       this.productRepository.findSellersByProductId(id),
-      
-      userId ? this.productRepository.getInteractionState(id, userId): Promise.resolve({
-        isLiked: false,
-        isSaved: false,
-      }),
-    ])
+
+      userId
+        ? this.productRepository.getInteractionState(id, userId)
+        : Promise.resolve({
+            isLiked: false,
+            isSaved: false,
+          }),
+    ]);
 
     return {
       ...product,
@@ -34,7 +35,6 @@ export class GetProduct {
       categories,
       sellers,
       ...interaction,
-    }
+    };
   }
-
 }

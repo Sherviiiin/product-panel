@@ -1,27 +1,15 @@
-import {
-  useEffect,
-  useState,
-} from "react"
+import { useEffect, useState } from "react";
 
-import { useNavigate } from "@tanstack/react-router"
+import { useNavigate } from "@tanstack/react-router";
 
-import {
-  ArrowUpDown,
-  RotateCcw,
-  SlidersHorizontal,
-} from "lucide-react"
+import { ArrowUpDown, RotateCcw, SlidersHorizontal } from "lucide-react";
 
-import type { ProductSearchParams } from "../catalog.search-params"
+import type { ProductSearchParams } from "../catalog.search-params";
 
-import { Button } from "@/components/ui/button"
-import { Slider } from "@/components/ui/slider"
+import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import {
   Select,
@@ -29,10 +17,10 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 
-const MIN_PRICE = 500_000
-const MAX_PRICE = 200_000_000
+const MIN_PRICE = 500_000;
+const MAX_PRICE = 200_000_000;
 
 type SortValue =
   | "none"
@@ -40,7 +28,7 @@ type SortValue =
   | "minPrice-desc"
   | "likesCount-desc"
   | "viewsCount-desc"
-  | "savesCount-desc"
+  | "savesCount-desc";
 
 const SORT_OPTIONS = [
   {
@@ -68,94 +56,61 @@ const SORT_OPTIONS = [
     label: "بیشترین ذخیره",
   },
 ] satisfies {
-  value: SortValue
-  label: string
-}[]
+  value: SortValue;
+  label: string;
+}[];
 
 type ProductToolbarProps = {
-  search: Partial<ProductSearchParams>
+  search: Partial<ProductSearchParams>;
+};
+
+function getInitialSort(search: Partial<ProductSearchParams>): SortValue {
+  if (search.sortBy === "minPrice" && search.sortOrder === "asc") {
+    return "minPrice-asc";
+  }
+
+  if (search.sortBy === "minPrice" && search.sortOrder === "desc") {
+    return "minPrice-desc";
+  }
+
+  if (search.sortBy === "likesCount" && search.sortOrder === "desc") {
+    return "likesCount-desc";
+  }
+
+  if (search.sortBy === "viewsCount" && search.sortOrder === "desc") {
+    return "viewsCount-desc";
+  }
+
+  if (search.sortBy === "savesCount" && search.sortOrder === "desc") {
+    return "savesCount-desc";
+  }
+
+  return "none";
 }
 
-function getInitialSort(
-  search: Partial<ProductSearchParams>,
-): SortValue {
-  if (
-    search.sortBy === "minPrice" &&
-    search.sortOrder === "asc"
-  ) {
-    return "minPrice-asc"
-  }
+export function ProductToolbar({ search }: ProductToolbarProps) {
+  const navigate = useNavigate();
 
-  if (
-    search.sortBy === "minPrice" &&
-    search.sortOrder === "desc"
-  ) {
-    return "minPrice-desc"
-  }
+  const [priceRange, setPriceRange] = useState<[number, number]>([
+    search.minPrice ?? MIN_PRICE,
+    search.maxPrice ?? MAX_PRICE,
+  ]);
 
-  if (
-    search.sortBy === "likesCount" &&
-    search.sortOrder === "desc"
-  ) {
-    return "likesCount-desc"
-  }
-
-  if (
-    search.sortBy === "viewsCount" &&
-    search.sortOrder === "desc"
-  ) {
-    return "viewsCount-desc"
-  }
-
-  if (
-    search.sortBy === "savesCount" &&
-    search.sortOrder === "desc"
-  ) {
-    return "savesCount-desc"
-  }
-
-  return "none"
-}
-
-export function ProductToolbar({
-  search,
-}: ProductToolbarProps) {
-  const navigate = useNavigate()
-
-  const [priceRange, setPriceRange] =
-    useState<[number, number]>([
-      search.minPrice ?? MIN_PRICE,
-      search.maxPrice ?? MAX_PRICE,
-    ])
-
-  const [sort, setSort] =
-    useState<SortValue>(
-      getInitialSort(search),
-    )
+  const [sort, setSort] = useState<SortValue>(getInitialSort(search));
 
   useEffect(() => {
-    setPriceRange([
-      search.minPrice ?? MIN_PRICE,
-      search.maxPrice ?? MAX_PRICE,
-    ])
+    setPriceRange([search.minPrice ?? MIN_PRICE, search.maxPrice ?? MAX_PRICE]);
 
     setSort(
       getInitialSort({
         sortBy: search.sortBy,
         sortOrder: search.sortOrder,
       }),
-    )
-  }, [
-    search.minPrice,
-    search.maxPrice,
-    search.sortBy,
-    search.sortOrder,
-  ])
+    );
+  }, [search.minPrice, search.maxPrice, search.sortBy, search.sortOrder]);
 
-  function applySort(
-    value: SortValue,
-  ) {
-    setSort(value)
+  function applySort(value: SortValue) {
+    setSort(value);
 
     if (value === "none") {
       navigate({
@@ -166,30 +121,22 @@ export function ProductToolbar({
           sortBy: undefined,
           sortOrder: undefined,
         },
-      })
+      });
 
-      return
+      return;
     }
 
-    const [sortBy, sortOrder] =
-      value.split("-")
+    const [sortBy, sortOrder] = value.split("-");
 
     navigate({
       to: "/products",
       search: {
         ...search,
         page: 1,
-        sortBy: sortBy as
-          | "minPrice"
-          | "likesCount"
-          | "viewsCount"
-          | "savesCount",
-        sortOrder:
-          sortOrder as
-            | "asc"
-            | "desc",
+        sortBy: sortBy as "minPrice" | "likesCount" | "viewsCount" | "savesCount",
+        sortOrder: sortOrder as "asc" | "desc",
       },
-    })
+    });
   }
 
   function applyPriceFilter() {
@@ -199,26 +146,17 @@ export function ProductToolbar({
         ...search,
         page: 1,
 
-        minPrice:
-          priceRange[0] === MIN_PRICE
-            ? undefined
-            : priceRange[0],
+        minPrice: priceRange[0] === MIN_PRICE ? undefined : priceRange[0],
 
-        maxPrice:
-          priceRange[1] === MAX_PRICE
-            ? undefined
-            : priceRange[1],
+        maxPrice: priceRange[1] === MAX_PRICE ? undefined : priceRange[1],
       },
-    })
+    });
   }
 
   function clearFilters() {
-    setPriceRange([
-      MIN_PRICE,
-      MAX_PRICE,
-    ])
+    setPriceRange([MIN_PRICE, MAX_PRICE]);
 
-    setSort("none")
+    setSort("none");
 
     navigate({
       to: "/products",
@@ -230,20 +168,17 @@ export function ProductToolbar({
         sortBy: undefined,
         sortOrder: undefined,
       },
-    })
+    });
   }
 
   const hasFilters =
-    search.minPrice !== undefined ||
-    search.maxPrice !== undefined ||
-    search.sortBy !== undefined
+    search.minPrice !== undefined || search.maxPrice !== undefined || search.sortBy !== undefined;
 
   return (
     <Card>
       <CardHeader className="border-b">
         <CardTitle className="flex items-center gap-2 text-base">
           <SlidersHorizontal className="size-4" />
-
           فیلتر و مرتب‌سازی
         </CardTitle>
       </CardHeader>
@@ -254,9 +189,7 @@ export function ProductToolbar({
           <div className="flex items-center gap-2">
             <ArrowUpDown className="size-4 text-muted-foreground" />
 
-            <p className="text-sm font-medium">
-              مرتب‌سازی
-            </p>
+            <p className="text-sm font-medium">مرتب‌سازی</p>
           </div>
 
           <Select
@@ -264,9 +197,7 @@ export function ProductToolbar({
             value={sort}
             onValueChange={(value) => {
               if (value !== null) {
-                applySort(
-                  value as SortValue,
-                )
+                applySort(value as SortValue);
               }
             }}
           >
@@ -275,29 +206,17 @@ export function ProductToolbar({
             </SelectTrigger>
 
             <SelectContent>
-              <SelectItem value="none">
-                بدون مرتب‌سازی
-              </SelectItem>
+              <SelectItem value="none">بدون مرتب‌سازی</SelectItem>
 
-              <SelectItem value="minPrice-asc">
-                قیمت: کم به زیاد
-              </SelectItem>
+              <SelectItem value="minPrice-asc">قیمت: کم به زیاد</SelectItem>
 
-              <SelectItem value="minPrice-desc">
-                قیمت: زیاد به کم
-              </SelectItem>
+              <SelectItem value="minPrice-desc">قیمت: زیاد به کم</SelectItem>
 
-              <SelectItem value="likesCount-desc">
-                بیشترین لایک
-              </SelectItem>
+              <SelectItem value="likesCount-desc">بیشترین لایک</SelectItem>
 
-              <SelectItem value="viewsCount-desc">
-                بیشترین بازدید
-              </SelectItem>
+              <SelectItem value="viewsCount-desc">بیشترین بازدید</SelectItem>
 
-              <SelectItem value="savesCount-desc">
-                بیشترین ذخیره
-              </SelectItem>
+              <SelectItem value="savesCount-desc">بیشترین ذخیره</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -306,9 +225,7 @@ export function ProductToolbar({
 
         {/* Price */}
         <div className="space-y-5">
-          <p className="text-sm font-medium">
-            محدوده قیمت
-          </p>
+          <p className="text-sm font-medium">محدوده قیمت</p>
 
           <div dir="ltr">
             <Slider
@@ -318,64 +235,37 @@ export function ProductToolbar({
               value={priceRange}
               onValueChange={(value) => {
                 if (!Array.isArray(value)) {
-                  return
+                  return;
                 }
-          
-                const minValue =
-                  value[0] ?? MIN_PRICE
-          
-                const maxValue =
-                  value[1] ?? MAX_PRICE
-          
-                setPriceRange([
-                  Math.min(
-                    minValue,
-                    maxValue,
-                  ),
-                  Math.max(
-                    minValue,
-                    maxValue,
-                  ),
-                ])
+
+                const minValue = value[0] ?? MIN_PRICE;
+
+                const maxValue = value[1] ?? MAX_PRICE;
+
+                setPriceRange([Math.min(minValue, maxValue), Math.max(minValue, maxValue)]);
               }}
             />
           </div>
 
           <div className="grid grid-cols-2 gap-2 text-xs">
             <div className="rounded-md bg-muted/60 p-2">
-              <span className="block text-muted-foreground">
-                از
-              </span>
+              <span className="block text-muted-foreground">از</span>
 
               <span className="mt-1 block font-medium">
-                {priceRange[0].toLocaleString(
-                  "fa-IR",
-                )}{" "}
-                تومان
+                {priceRange[0].toLocaleString("fa-IR")} تومان
               </span>
             </div>
 
             <div className="rounded-md bg-muted/60 p-2">
-              <span className="block text-muted-foreground">
-                تا
-              </span>
+              <span className="block text-muted-foreground">تا</span>
 
               <span className="mt-1 block font-medium">
-                {priceRange[1].toLocaleString(
-                  "fa-IR",
-                )}{" "}
-                تومان
+                {priceRange[1].toLocaleString("fa-IR")} تومان
               </span>
             </div>
           </div>
 
-          <Button
-            type="button"
-            className="w-full"
-            onClick={
-              applyPriceFilter
-            }
-          >
+          <Button type="button" className="w-full" onClick={applyPriceFilter}>
             اعمال محدوده قیمت
           </Button>
         </div>
@@ -388,17 +278,14 @@ export function ProductToolbar({
               type="button"
               variant="ghost"
               className="w-full gap-2 text-muted-foreground"
-              onClick={
-                clearFilters
-              }
+              onClick={clearFilters}
             >
               <RotateCcw className="size-4" />
-
               پاک کردن فیلترها
             </Button>
           </>
         )}
       </CardContent>
     </Card>
-  )
+  );
 }

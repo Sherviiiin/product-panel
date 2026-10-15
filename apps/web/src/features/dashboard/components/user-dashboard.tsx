@@ -1,47 +1,26 @@
-import {
-  useState,
-} from "react"
+import { useState } from "react";
 
-import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import {
-  Bookmark,
-  Eye,
-  Heart,
-  Search,
-} from "lucide-react"
+import { Bookmark, Eye, Heart, Search } from "lucide-react";
 
-import type {
-  DashboardProductSortBy,
-  DashboardSortOrder,
-} from "../dashboard.schema"
+import type { DashboardProductSortBy, DashboardSortOrder } from "../dashboard.schema";
 
-import {
-  dashboardKeys,
-  userDashboardProductsQuery,
-} from "../queries/dashboard.query"
+import { dashboardKeys, userDashboardProductsQuery } from "../queries/dashboard.query";
 
-import {
-  useDashboardUiStore,
-} from "../store/dashboard-ui.store"
+import { useDashboardUiStore } from "../store/dashboard-ui.store";
 
-import {
-  DashboardProductsTable,
-} from "./dashboard-products-table"
+import { DashboardProductsTable } from "./dashboard-products-table";
 
 import {
   toggleProductLike,
   toggleProductSave,
-} from "@/features/catalog/server/functions/product.functions"
+} from "@/features/catalog/server/functions/product.functions";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
-const PAGE_SIZE = 10
+const PAGE_SIZE = 10;
 
 const userTabs = [
   {
@@ -59,184 +38,108 @@ const userTabs = [
     label: "ذخیره‌شده‌ها",
     icon: Bookmark,
   },
-] as const
+] as const;
 
 export function UserDashboard() {
-  const queryClient =
-    useQueryClient()
+  const queryClient = useQueryClient();
 
-  const userTab =
-    useDashboardUiStore(
-      (state) =>
-        state.userTab,
-    )
+  const userTab = useDashboardUiStore((state) => state.userTab);
 
-  const setUserTab =
-    useDashboardUiStore(
-      (state) =>
-        state.setUserTab,
-    )
+  const setUserTab = useDashboardUiStore((state) => state.setUserTab);
 
-  const [
-    searchText,
-    setSearchText,
-  ] = useState("")
+  const [searchText, setSearchText] = useState("");
 
-  const [
-    search,
-    setSearch,
-  ] = useState("")
+  const [search, setSearch] = useState("");
 
-  const [
-    page,
-    setPage,
-  ] = useState(1)
+  const [page, setPage] = useState(1);
 
-  const [
-    sortBy,
-    setSortBy,
-  ] =
-    useState<
-      DashboardProductSortBy | undefined
-    >(undefined)
+  const [sortBy, setSortBy] = useState<DashboardProductSortBy | undefined>(undefined);
 
-  const [
-    sortOrder,
-    setSortOrder,
-  ] =
-    useState<
-      DashboardSortOrder | undefined
-    >(undefined)
+  const [sortOrder, setSortOrder] = useState<DashboardSortOrder | undefined>(undefined);
 
   const input = {
     type: userTab,
     page,
     pageSize: PAGE_SIZE,
 
-    search:
-      search ||
-      undefined,
+    search: search || undefined,
 
     sortBy,
     sortOrder,
-  }
+  };
 
-  const {
-    data,
-    isPending,
-  } = useQuery(
-    userDashboardProductsQuery(
-      input,
-    ),
-  )
+  const { data, isPending } = useQuery(userDashboardProductsQuery(input));
 
-  const likeMutation =
-    useMutation({
-      mutationFn: (
-        productId: number,
-      ) =>
-        toggleProductLike({
-          data: {
-            id: productId,
-          },
-        }),
+  const likeMutation = useMutation({
+    mutationFn: (productId: number) =>
+      toggleProductLike({
+        data: {
+          id: productId,
+        },
+      }),
 
-      onSuccess: async () => {
-        await queryClient.invalidateQueries({
-          queryKey:
-            dashboardKeys.all,
-        })
-      },
-    })
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: dashboardKeys.all,
+      });
+    },
+  });
 
-  const saveMutation =
-    useMutation({
-      mutationFn: (
-        productId: number,
-      ) =>
-        toggleProductSave({
-          data: {
-            id: productId,
-          },
-        }),
+  const saveMutation = useMutation({
+    mutationFn: (productId: number) =>
+      toggleProductSave({
+        data: {
+          id: productId,
+        },
+      }),
 
-      onSuccess: async () => {
-        await queryClient.invalidateQueries({
-          queryKey:
-            dashboardKeys.all,
-        })
-      },
-    })
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: dashboardKeys.all,
+      });
+    },
+  });
 
-  const total =
-    data?.total ?? 0
+  const total = data?.total ?? 0;
 
-  const totalPages =
-    Math.max(
-      1,
-      Math.ceil(
-        total / PAGE_SIZE,
-      ),
-    )
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
-  function changeTab(
-    tab:
-      | "viewed"
-      | "liked"
-      | "saved",
-  ) {
-    setUserTab(tab)
+  function changeTab(tab: "viewed" | "liked" | "saved") {
+    setUserTab(tab);
 
-    setPage(1)
+    setPage(1);
 
-    setSortBy(undefined)
-    setSortOrder(undefined)
+    setSortBy(undefined);
+    setSortOrder(undefined);
   }
 
   function submitSearch() {
-    setSearch(
-      searchText.trim(),
-    )
+    setSearch(searchText.trim());
 
-    setPage(1)
+    setPage(1);
   }
 
-  function handleSort(
-    column:
-      DashboardProductSortBy,
-  ) {
-    setPage(1)
+  function handleSort(column: DashboardProductSortBy) {
+    setPage(1);
 
     if (sortBy === column) {
-      setSortOrder(
-        sortOrder === "asc"
-          ? "desc"
-          : "asc",
-      )
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
 
-      return
+      return;
     }
 
-    setSortBy(column)
+    setSortBy(column);
 
-    if (
-      column === "name" ||
-      column === "minPrice"
-    ) {
-      setSortOrder("asc")
+    if (column === "name" || column === "minPrice") {
+      setSortOrder("asc");
     } else {
-      setSortOrder("desc")
+      setSortOrder("desc");
     }
   }
 
-  function renderActions(
-    productId: number,
-  ) {
+  function renderActions(productId: number) {
     if (userTab === "liked") {
-      const pending =
-        likeMutation.isPending &&
-        likeMutation.variables ===
-          productId
+      const pending = likeMutation.isPending && likeMutation.variables === productId;
 
       return (
         <Button
@@ -245,22 +148,18 @@ export function UserDashboard() {
           variant="outline"
           disabled={pending}
           onClick={(event) => {
-            event.stopPropagation()
-            likeMutation.mutate(productId)
+            event.stopPropagation();
+            likeMutation.mutate(productId);
           }}
         >
           <Heart className="size-4 fill-current" />
-
           حذف لایک
         </Button>
-      )
+      );
     }
 
     if (userTab === "saved") {
-      const pending =
-        saveMutation.isPending &&
-        saveMutation.variables ===
-          productId
+      const pending = saveMutation.isPending && saveMutation.variables === productId;
 
       return (
         <Button
@@ -269,130 +168,90 @@ export function UserDashboard() {
           variant="outline"
           disabled={pending}
           onClick={(event) => {
-            event.stopPropagation()
-            saveMutation.mutate(productId)
+            event.stopPropagation();
+            saveMutation.mutate(productId);
           }}
         >
           <Bookmark className="size-4 fill-current" />
-
           حذف از ذخیره‌ها
         </Button>
-      )
+      );
     }
 
-    return null
+    return null;
   }
 
   return (
-    <div
-      dir="rtl"
-      className="space-y-6"
-    >
+    <div dir="rtl" className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold sm:text-3xl">
-          داشبورد من
-        </h1>
+        <h1 className="text-2xl font-bold sm:text-3xl">داشبورد من</h1>
 
-        <p className="mt-1 text-sm text-muted-foreground">
-          مدیریت فعالیت‌ها و محصولات شما
-        </p>
+        <p className="mt-1 text-sm text-muted-foreground">مدیریت فعالیت‌ها و محصولات شما</p>
       </div>
 
       {/* Tabs */}
       <div className="grid grid-cols-3 overflow-hidden rounded-lg border">
-        {userTabs.map(
-          (tab) => {
-            const Icon =
-              tab.icon
+        {userTabs.map((tab) => {
+          const Icon = tab.icon;
 
-            const active =
-              userTab ===
-              tab.value
+          const active = userTab === tab.value;
 
-            return (
-              <button
-                key={
-                  tab.value
-                }
-                type="button"
-                onClick={() =>
-                  changeTab(
-                    tab.value,
-                  )
-                }
-                className={`flex h-12 items-center justify-center gap-2 border-l text-sm font-medium transition-colors last:border-l-0 ${
-                  active
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-background hover:bg-muted"
-                }`}
-              >
-                <Icon className="size-4" />
+          return (
+            <button
+              key={tab.value}
+              type="button"
+              onClick={() => changeTab(tab.value)}
+              className={`flex h-12 items-center justify-center gap-2 border-l text-sm font-medium transition-colors last:border-l-0 ${
+                active ? "bg-primary text-primary-foreground" : "bg-background hover:bg-muted"
+              }`}
+            >
+              <Icon className="size-4" />
 
-                {tab.label}
-              </button>
-            )
-          },
-        )}
+              {tab.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* Search */}
       <form
         className="flex gap-2"
-        onSubmit={(
-          event,
-        ) => {
-          event.preventDefault()
+        onSubmit={(event) => {
+          event.preventDefault();
 
-          submitSearch()
+          submitSearch();
         }}
       >
         <div className="relative flex-1">
           <Search className="absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
 
           <Input
-            value={
-              searchText
-            }
-            onChange={(
-              event,
-            ) =>
-              setSearchText(
-                event.target
-                  .value,
-              )
-            }
+            value={searchText}
+            onChange={(event) => setSearchText(event.target.value)}
             placeholder="جستجو در محصولات..."
             className="pr-10"
           />
         </div>
 
-        <Button type="submit">
-          جستجو
-        </Button>
+        <Button type="submit">جستجو</Button>
       </form>
 
       {/* Count */}
       <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
-          {total.toLocaleString(
-            "fa-IR",
-          )}{" "}
-          محصول
-        </p>
+        <p className="text-sm text-muted-foreground">{total.toLocaleString("fa-IR")} محصول</p>
 
-        {(search ||
-          sortBy) && (
+        {(search || sortBy) && (
           <Button
             type="button"
             variant="ghost"
             size="sm"
             onClick={() => {
-              setSearchText("")
-              setSearch("")
-              setSortBy(undefined)
-              setSortOrder(undefined)
-              setPage(1)
+              setSearchText("");
+              setSearch("");
+              setSortBy(undefined);
+              setSortOrder(undefined);
+              setPage(1);
             }}
           >
             پاک کردن فیلترها
@@ -407,23 +266,11 @@ export function UserDashboard() {
         </div>
       ) : (
         <DashboardProductsTable
-          products={
-            data?.items ?? []
-          }
+          products={data?.items ?? []}
           sortBy={sortBy}
-          sortOrder={
-            sortOrder
-          }
-          onSort={
-            handleSort
-          }
-          renderActions={(
-            product,
-          ) =>
-            renderActions(
-              product.id,
-            )
-          }
+          sortOrder={sortOrder}
+          onSort={handleSort}
+          renderActions={(product) => renderActions(product.id)}
         />
       )}
 
@@ -433,52 +280,26 @@ export function UserDashboard() {
           <Button
             type="button"
             variant="outline"
-            disabled={
-              page <= 1
-            }
-            onClick={() =>
-              setPage(
-                (
-                  current,
-                ) =>
-                  current - 1,
-              )
-            }
+            disabled={page <= 1}
+            onClick={() => setPage((current) => current - 1)}
           >
             قبلی
           </Button>
 
           <span className="text-sm text-muted-foreground">
-            صفحه{" "}
-            {page.toLocaleString(
-              "fa-IR",
-            )}{" "}
-            از{" "}
-            {totalPages.toLocaleString(
-              "fa-IR",
-            )}
+            صفحه {page.toLocaleString("fa-IR")} از {totalPages.toLocaleString("fa-IR")}
           </span>
 
           <Button
             type="button"
             variant="outline"
-            disabled={
-              page >=
-              totalPages
-            }
-            onClick={() =>
-              setPage(
-                (
-                  current,
-                ) =>
-                  current + 1,
-              )
-            }
+            disabled={page >= totalPages}
+            onClick={() => setPage((current) => current + 1)}
           >
             بعدی
           </Button>
         </div>
       )}
     </div>
-  )
+  );
 }

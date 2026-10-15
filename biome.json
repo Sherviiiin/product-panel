@@ -27,16 +27,11 @@
     }
   },
   "files": {
-    "includes": [
-      "**",
-      "!**/routeTree.gen.ts"
-    ]
+    "includes": ["**", "!**/routeTree.gen.ts"]
   },
   "overrides": [
     {
-      "includes": [
-        "apps/web/src/features/auth/server/auth.service.server.ts"
-      ],
+      "includes": ["apps/web/src/features/auth/server/auth.service.server.ts"],
       "linter": {
         "rules": {
           "correctness": {

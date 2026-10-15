@@ -8,14 +8,19 @@ export const sellerTypes = pgTable("seller_types", {
 
   name: varchar("name", {
     length: 50,
-  }).notNull().unique(),
-})
+  })
+    .notNull()
+    .unique(),
+});
 
 // Table seller-profiles
 export const sellerProfiles = pgTable("seller_profiles", {
-  id: serial('id').primaryKey(),
+  id: serial("id").primaryKey(),
 
-  userId: integer("user_id").notNull().unique().references(() => users.id),
+  userId: integer("user_id")
+    .notNull()
+    .unique()
+    .references(() => users.id),
 
   shopName: varchar("shop_name", {
     length: 150,
@@ -27,20 +32,30 @@ export const sellerProfiles = pgTable("seller_profiles", {
 
   cityId: integer("city_id").references(() => cities.id),
 
-  sellerTypeId: integer("seller_type_id").notNull().references(() => sellerTypes.id),
-})
+  sellerTypeId: integer("seller_type_id")
+    .notNull()
+    .references(() => sellerTypes.id),
+});
 
 // Table seller-products
-export const sellerProducts = pgTable("seller_products", {
+export const sellerProducts = pgTable(
+  "seller_products",
+  {
     id: serial("id").primaryKey(),
 
-    sellerProfileId: integer("seller_profile_id").notNull().references(() => sellerProfiles.id),
+    sellerProfileId: integer("seller_profile_id")
+      .notNull()
+      .references(() => sellerProfiles.id),
 
-    productId: integer("product_id").notNull().references(() => products.id),
+    productId: integer("product_id")
+      .notNull()
+      .references(() => products.id),
 
     url: varchar("url", {
       length: 255,
-    }).notNull().unique(),
+    })
+      .notNull()
+      .unique(),
 
     price: integer("price").notNull(),
 
@@ -49,7 +64,5 @@ export const sellerProducts = pgTable("seller_products", {
     stock: integer("stock").notNull().default(0),
   },
 
-  (table) => [
-    unique().on(table.sellerProfileId, table.productId)
-  ]
-)
+  (table) => [unique().on(table.sellerProfileId, table.productId)],
+);

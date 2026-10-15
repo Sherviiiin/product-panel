@@ -1,42 +1,22 @@
-import { useId } from "react"
+import { useId } from "react";
 
-import {
-  useEffect,
-} from "react"
+import { useEffect } from "react";
 
-import {
-  useForm,
-} from "@tanstack/react-form"
+import { useForm } from "@tanstack/react-form";
 
-import {
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import type {
-  SellerListedProduct,
-  UpdateSellerListingInput,
-} from "../dashboard.schema"
+import type { SellerListedProduct, UpdateSellerListingInput } from "../dashboard.schema";
 
-import {
-  updateSellerListingSchema,
-} from "../dashboard.schema"
+import { updateSellerListingSchema } from "../dashboard.schema";
 
-import {
-  dashboardKeys,
-} from "../queries/dashboard.query"
+import { dashboardKeys } from "../queries/dashboard.query";
 
-import {
-  updateSellerListing,
-} from "../server/functions/dashboard.functions"
+import { updateSellerListing } from "../server/functions/dashboard.functions";
 
-import {
-  Button,
-} from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 
-import {
-  Input,
-} from "@/components/ui/input"
+import { Input } from "@/components/ui/input";
 
 import {
   Dialog,
@@ -44,194 +24,139 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 
 type Props = {
-  product: SellerListedProduct | null
+  product: SellerListedProduct | null;
 
-  open: boolean
+  open: boolean;
 
-  onOpenChange: (
-    open: boolean,
-  ) => void
+  onOpenChange: (open: boolean) => void;
+};
+
+function FieldErrors({ errors }: { errors: readonly unknown[] }) {
+  return errors.map((error, index) => {
+    if (!error) {
+      return null;
+    }
+
+    const message =
+      typeof error === "object" && error !== null && "message" in error
+        ? String(error.message)
+        : String(error);
+
+    return (
+      <p key={index} className="text-xs text-destructive">
+        {message}
+      </p>
+    );
+  });
 }
 
-function FieldErrors({
-  errors,
-}: {
-  errors: readonly unknown[]
-}) {
-  return errors.map(
-    (
-      error,
-      index,
-    ) => {
-      if (!error) {
-        return null
-      }
+export function SellerListingEditDialog({ product, open, onOpenChange }: Props) {
+  const formId = useId();
 
-      const message =
-        typeof error ===
-          "object" &&
-        error !== null &&
-        "message" in error
-          ? String(
-              error.message,
-            )
-          : String(error)
+  const queryClient = useQueryClient();
 
-      return (
-        <p
-          key={index}
-          className="text-xs text-destructive"
-        >
-          {message}
-        </p>
-      )
+  const mutation = useMutation({
+    mutationFn: (data: UpdateSellerListingInput) =>
+      updateSellerListing({
+        data,
+      }),
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: dashboardKeys.all,
+      });
+
+      onOpenChange(false);
     },
-  )
-}
+  });
 
-export function SellerListingEditDialog({
-  product,
-  open,
-  onOpenChange,
-}: Props) {
-  const formId = useId()
-
-  const queryClient =
-    useQueryClient()
-
-  const mutation =
-    useMutation({
-      mutationFn: (
-        data: UpdateSellerListingInput,
-      ) =>
-        updateSellerListing({
-          data,
-        }),
-
-      onSuccess: async () => {
-        await queryClient.invalidateQueries({
-          queryKey:
-            dashboardKeys.all,
-        })
-
-        onOpenChange(false)
-      },
-    })
-
-  const { reset: resetMutation } = mutation
+  const { reset: resetMutation } = mutation;
 
   const form = useForm({
     defaultValues: {
-      listingId:
-        product?.listingId ?? 0,
+      listingId: product?.listingId ?? 0,
 
-      price:
-        product?.price ?? 0,
+      price: product?.price ?? 0,
 
-      discountPrice:
-        product?.discountPrice ??
-        null,
+      discountPrice: product?.discountPrice ?? null,
 
-      stock:
-        product?.stock ?? 0,
+      stock: product?.stock ?? 0,
 
-      url:
-        product?.url ?? "",
+      url: product?.url ?? "",
     },
 
     validators: {
       //onChange:
       //  updateSellerListingSchema,
 
-      onSubmit:
-        updateSellerListingSchema,
+      onSubmit: updateSellerListingSchema,
     },
 
-    onSubmit: async ({
-      value,
-    }) => {
-      await mutation.mutateAsync(
-        value,
-      )
+    onSubmit: async ({ value }) => {
+      await mutation.mutateAsync(value);
     },
-  })
+  });
 
   useEffect(() => {
     if (!product) {
-      return
+      return;
     }
 
-    resetMutation()
+    resetMutation();
 
     form.reset({
-      listingId:
-        product.listingId,
+      listingId: product.listingId,
 
-      price:
-        product.price,
+      price: product.price,
 
-      discountPrice:
-        product.discountPrice,
+      discountPrice: product.discountPrice,
 
-      stock:
-        product.stock,
+      stock: product.stock,
 
-      url:
-        product.url,
-    })
-  }, [product, form, resetMutation])
+      url: product.url,
+    });
+  }, [product, form, resetMutation]);
 
   function closeDialog() {
-    mutation.reset()
+    mutation.reset();
 
-    onOpenChange(false)
+    onOpenChange(false);
   }
 
   return (
     <Dialog
       open={open}
-      onOpenChange={(
-        value,
-      ) => {
+      onOpenChange={(value) => {
         if (!value) {
-          closeDialog()
+          closeDialog();
 
-          return
+          return;
         }
 
-        onOpenChange(true)
+        onOpenChange(true);
       }}
     >
-      <DialogContent
-        dir="rtl"
-        className="sm:max-w-lg"
-      >
+      <DialogContent dir="rtl" className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>
-            ویرایش اطلاعات فروش
-          </DialogTitle>
+          <DialogTitle>ویرایش اطلاعات فروش</DialogTitle>
 
-          <DialogDescription>
-            {product?.name}
-          </DialogDescription>
+          <DialogDescription>{product?.name}</DialogDescription>
         </DialogHeader>
 
         <form
           className="space-y-5"
           onSubmit={(event) => {
-            event.preventDefault()
-            event.stopPropagation()
+            event.preventDefault();
+            event.stopPropagation();
 
-            form.handleSubmit()
+            form.handleSubmit();
           }}
         >
           {/* Price */}
-          <form.Field
-            name="price"
-          >
+          <form.Field name="price">
             {(field) => (
               <div className="space-y-2">
                 <label className="text-sm font-medium" htmlFor={`${formId}-${field.name}`}>
@@ -241,38 +166,19 @@ export function SellerListingEditDialog({
                 <Input
                   type="number"
                   min={1}
-                  value={
-                    field.state.value
-                  }
-                  onBlur={
-                    field.handleBlur
-                  }
-                  onChange={(event) =>
-                    field.handleChange(
-                      Number(
-                        event.target
-                          .value,
-                      ),
-                    )
-                  }
-
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(event) => field.handleChange(Number(event.target.value))}
                   id={`${formId}-${field.name}`}
                 />
 
-                <FieldErrors
-                  errors={
-                    field.state.meta
-                      .errors
-                  }
-                />
+                <FieldErrors errors={field.state.meta.errors} />
               </div>
             )}
           </form.Field>
 
           {/* Discount */}
-          <form.Field
-            name="discountPrice"
-          >
+          <form.Field name="discountPrice">
             {(field) => (
               <div className="space-y-2">
                 <label className="text-sm font-medium" htmlFor={`${formId}-${field.name}`}>
@@ -282,43 +188,24 @@ export function SellerListingEditDialog({
                 <Input
                   type="number"
                   min={1}
-                  value={
-                    field.state.value ??
-                    ""
-                  }
+                  value={field.state.value ?? ""}
                   placeholder="بدون تخفیف"
-                  onBlur={
-                    field.handleBlur
-                  }
+                  onBlur={field.handleBlur}
                   onChange={(event) =>
                     field.handleChange(
-                      event.target.value ===
-                        ""
-                        ? null
-                        : Number(
-                            event.target
-                              .value,
-                          ),
+                      event.target.value === "" ? null : Number(event.target.value),
                     )
                   }
-
                   id={`${formId}-${field.name}`}
                 />
 
-                <FieldErrors
-                  errors={
-                    field.state.meta
-                      .errors
-                  }
-                />
+                <FieldErrors errors={field.state.meta.errors} />
               </div>
             )}
           </form.Field>
 
           {/* Stock */}
-          <form.Field
-            name="stock"
-          >
+          <form.Field name="stock">
             {(field) => (
               <div className="space-y-2">
                 <label className="text-sm font-medium" htmlFor={`${formId}-${field.name}`}>
@@ -328,38 +215,19 @@ export function SellerListingEditDialog({
                 <Input
                   type="number"
                   min={0}
-                  value={
-                    field.state.value
-                  }
-                  onBlur={
-                    field.handleBlur
-                  }
-                  onChange={(event) =>
-                    field.handleChange(
-                      Number(
-                        event.target
-                          .value,
-                      ),
-                    )
-                  }
-
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(event) => field.handleChange(Number(event.target.value))}
                   id={`${formId}-${field.name}`}
                 />
 
-                <FieldErrors
-                  errors={
-                    field.state.meta
-                      .errors
-                  }
-                />
+                <FieldErrors errors={field.state.meta.errors} />
               </div>
             )}
           </form.Field>
 
           {/* URL */}
-          <form.Field
-            name="url"
-          >
+          <form.Field name="url">
             {(field) => (
               <div className="space-y-2">
                 <label className="text-sm font-medium" htmlFor={`${formId}-${field.name}`}>
@@ -368,69 +236,32 @@ export function SellerListingEditDialog({
 
                 <Input
                   dir="ltr"
-                  value={
-                    field.state.value
-                  }
-                  onBlur={
-                    field.handleBlur
-                  }
-                  onChange={(event) =>
-                    field.handleChange(
-                      event.target.value,
-                    )
-                  }
-
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(event) => field.handleChange(event.target.value)}
                   id={`${formId}-${field.name}`}
                 />
 
-                <FieldErrors
-                  errors={
-                    field.state.meta
-                      .errors
-                  }
-                />
+                <FieldErrors errors={field.state.meta.errors} />
               </div>
             )}
           </form.Field>
 
           {mutation.isError && (
             <p className="text-sm text-destructive">
-              {mutation.error instanceof
-              Error
-                ? mutation.error.message
-                : "خطا در ذخیره تغییرات."}
+              {mutation.error instanceof Error ? mutation.error.message : "خطا در ذخیره تغییرات."}
             </p>
           )}
 
           <div className="flex justify-end gap-2 pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={
-                closeDialog
-              }
-            >
+            <Button type="button" variant="outline" onClick={closeDialog}>
               انصراف
             </Button>
 
-            <form.Subscribe
-              selector={(
-                state,
-              ) =>
-                state.canSubmit
-              }
-            >
+            <form.Subscribe selector={(state) => state.canSubmit}>
               {(canSubmit) => (
-                <Button
-                  type="submit"
-                  disabled={
-                    !canSubmit ||
-                    mutation.isPending
-                  }
-                >
-                  {mutation.isPending
-                    ? "در حال ذخیره..."
-                    : "ذخیره تغییرات"}
+                <Button type="submit" disabled={!canSubmit || mutation.isPending}>
+                  {mutation.isPending ? "در حال ذخیره..." : "ذخیره تغییرات"}
                 </Button>
               )}
             </form.Subscribe>
@@ -438,5 +269,5 @@ export function SellerListingEditDialog({
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

@@ -1,48 +1,48 @@
-import type { QueryClient } from "@tanstack/react-query"
+import type { QueryClient } from "@tanstack/react-query";
 
-import { HeadContent, Scripts, createRootRouteWithContext } from '@tanstack/react-router'
+import { HeadContent, Scripts, createRootRouteWithContext } from "@tanstack/react-router";
 
-import appCss from '../styles.css?url'
-import '../styles/app.css'
+import appCss from "../styles.css?url";
+import "../styles/app.css";
 
-import { currentUserQuery } from "@/features/auth/queries/auth.query"
+import { currentUserQuery } from "@/features/auth/queries/auth.query";
 
-import { Header } from "@/components/layout/header"
+import { Header } from "@/components/layout/header";
 
 interface RouterContext {
-  queryClient: QueryClient
+  queryClient: QueryClient;
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   head: () => ({
     meta: [
       {
-        charSet: 'utf-8',
+        charSet: "utf-8",
       },
       {
-        name: 'viewport',
-        content: 'width=device-width, initial-scale=1',
+        name: "viewport",
+        content: "width=device-width, initial-scale=1",
       },
       {
-        title: 'سایت محصولات',
+        title: "سایت محصولات",
       },
     ],
     links: [
       {
-        rel: 'stylesheet',
+        rel: "stylesheet",
         href: appCss,
       },
     ],
   }),
-  
+
   shellComponent: RootDocument,
 
   loader: async ({ context }) => {
     await context.queryClient.query({
       ...currentUserQuery(),
-    })
+    });
   },
-})
+});
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
@@ -51,12 +51,12 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        <Header/>
-        
+        <Header />
+
         {children}
 
         <Scripts />
       </body>
     </html>
-  )
+  );
 }

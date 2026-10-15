@@ -1,20 +1,18 @@
-import { useSession } from "@tanstack/react-start/server"
+import { useSession } from "@tanstack/react-start/server";
 
-import type { AuthRole } from "../auth.schema"
+import type { AuthRole } from "../auth.schema";
 
 type AuthSessionData = {
-  userId?: number
-  email?: string
-  activeRole?: AuthRole
-}
+  userId?: number;
+  email?: string;
+  activeRole?: AuthRole;
+};
 
 export function useAuthSession() {
-  const secret = process.env.SESSION_SECRET
+  const secret = process.env.SESSION_SECRET;
 
   if (!secret || secret.length < 32) {
-    throw new Error(
-      "SESSION_SECRET must be at least 32 characters",
-    )
+    throw new Error("SESSION_SECRET must be at least 32 characters");
   }
 
   return useSession<AuthSessionData>({
@@ -29,5 +27,5 @@ export function useAuthSession() {
       path: "/",
       maxAge: 60 * 60 * 24 * 7,
     },
-  })
+  });
 }
