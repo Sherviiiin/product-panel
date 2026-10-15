@@ -28,6 +28,7 @@ import type {
   ProductSearchParams,
   ProductSeller,
   ProductSpec,
+  ViewIdentity
 } from "../domain/product.repository";
 
 import type { ProductEntity } from "../domain/product.entity";
@@ -249,33 +250,110 @@ export class DrizzleProductRepository implements ProductRepository {
   // 8
   async recordView(
     productId: number,
-    userId?: number,
-  ): Promise<{
-    viewsCount: number;
-  }> {
+    viewer: ViewIdentity,
+  ): Promise<{ viewsCount: number }> {
     return db.transaction(async (tx) => {
-      await tx.insert(productViews).values({
-        productId,
+      const [product] = await tx
+        .select({ viewsCount: products.viewsCount })
+        .from(products)
+        .where(eq(products.id, productId))
+        .limit(1)
+        .for("update")
 
-        userId: userId ?? null,
-      });
+      if (!product) {
+        throw new Error("PRODUCT_NOT_FOUND")
+      }
 
-      const [updatedProduct] = await tx
+      const [guestView] = await tx
+        .select({
+          id: productViews.id,
+          userId: productViews.userId,
+        })
+        .from(productViews)
+        .where(
+          and(
+            eq(productViews.productId, productId),
+            eq(productViews.guestId, viewer.guestId),
+          ),
+        )
+        .limit(1)
+
+      const [userView] =
+        viewer.userId === null
+          ? []
+          : await tx
+              .select({
+                id: productViews.id,
+                guestId: productViews.guestId,
+              })
+              .from(productViews)
+              .where(
+                and(
+                  eq(productViews.productId, productId),
+                  eq(productViews.userId, viewer.userId),
+                ),
+              )
+              .limit(1)
+
+      if (guestView || userView) {
+        // بازدید مهمان وجود دارد؛ در صورت امکان حساب را متصل کن.
+        if (
+          viewer.userId !== null &&
+          guestView &&
+          guestView.userId === null &&
+          !userView
+        ) {
+          await tx
+            .update(productViews)
+            .set({ userId: viewer.userId })
+            .where(eq(productViews.id, guestView.id))
+        }
+
+        // بازدید حساب وجود دارد؛ در صورت خالی بودن، UUID را اضافه کن.
+        if (
+          viewer.userId !== null &&
+          !guestView &&
+          userView &&
+          userView.guestId === null
+        ) {
+          await tx
+            .update(productViews)
+            .set({ guestId: viewer.guestId })
+            .where(eq(productViews.id, userView.id))
+        }
+
+        // بازدید تکراری: بدون افزایش شمارنده
+        return { viewsCount: product.viewsCount }
+      }
+
+      const [inserted] = await tx
+        .insert(productViews)
+        .values({
+          productId,
+          guestId: viewer.guestId,
+          userId: viewer.userId,
+        })
+        .onConflictDoNothing()
+        .returning({ id: productViews.id })
+
+      if (!inserted) {
+        return { viewsCount: product.viewsCount }
+      }
+
+      const [updated] = await tx
         .update(products)
         .set({
           viewsCount: sql`${products.viewsCount} + 1`,
         })
         .where(eq(products.id, productId))
-        .returning({
-          viewsCount: products.viewsCount,
-        });
+        .returning({ viewsCount: products.viewsCount })
 
-      if (!updatedProduct) {
-        throw new Error("PRODUCT_NOT_FOUND");
+      if (!updated) {
+        throw new Error("PRODUCT_NOT_FOUND")
       }
 
-      return updatedProduct;
-    });
+      return updated
+    })
   }
 
   // 9
@@ -431,28 +509,6 @@ export class DrizzleProductRepository implements ProductRepository {
       total: totalRow?.total ?? 0,
     };
   }
-
-  // 10
-  // async create(
-  //   data: Omit<
-  //     ProductEntity,
-  //     "id"
-  //   >,
-  // ): Promise<ProductEntity> {
-  //   const result =
-  //     await db
-  //       .insert(products)
-  //       .values(
-  //         toPersistence(
-  //           data,
-  //         ),
-  //       )
-  //       .returning()
-  //
-  //   return this.toEntity(
-  //     result[0],
-  //   )
-  // }
 
   // 11
   private toEntity(row: typeof products.$inferSelect): ProductEntity {

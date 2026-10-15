@@ -10,6 +10,8 @@ import { RecordProductView } from "../application/record-product-view";
 
 import { useAuthSession } from "@/features/auth/server/auth.session.server";
 
+import { getOrCreateGuestId } from "../guest-viewer.server"
+
 // Dipendency Injections
 const repository = new DrizzleProductRepository();
 
@@ -68,10 +70,15 @@ export const toggleProductSave = createServerFn({ method: "POST" })
   });
 
 // 5- recordProductView
-export const recordProductView = createServerFn({ method: "POST" })
+export const recordProductView = createServerFn({
+  method: "POST",
+})
   .validator(getProductSchema)
   .handler(async ({ data }) => {
-    const session = await useAuthSession();
+    const session = await useAuthSession()
 
-    return recordProductViewUseCase.execute(data.id, session.data.userId);
-  });
+    return recordProductViewUseCase.execute(data.id, {
+      guestId: getOrCreateGuestId(),
+      userId: session.data.userId ?? null,
+    })
+  })

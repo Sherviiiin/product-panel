@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto"
 import { hash } from "bcryptjs";
 import { sql } from "drizzle-orm";
 
@@ -998,15 +999,23 @@ async function seed() {
       }
 
       // Views
+      let registeredViewIndex = 0
+
       for (let i = 0; i < viewCount; i++) {
-        const anonymous = i % 5 === 0;
-
-        const userId = anonymous ? null : getItem(userIds, (productIndex + i) % userIds.length);
-
+        const anonymous = i % 5 === 0
+      
+        const userId = anonymous
+          ? null
+          : getItem(
+              userIds,
+              (productIndex + registeredViewIndex++) % userIds.length,
+            )
+      
         viewValues.push({
           userId,
+          guestId: anonymous ? randomUUID() : null,
           productId,
-        });
+        })
       }
 
       counters.set(productId, {

@@ -64,15 +64,16 @@ export interface ProductRepository {
   }>;
   recordView(
     productId: number,
-    userId?: number,
-  ): Promise<{
-    viewsCount: number;
-  }>;
+    viewer: ViewIdentity,
+  ): Promise<{ viewsCount: number }>;
 
   searchProducts(params: ProductSearchParams): Promise<{
     items: ProductSearchItem[];
     total: number;
   }>;
+}
 
-  //create(data: Omit<ProductEntity, "id">): Promise<ProductEntity>
+export type ViewIdentity = {
+  guestId: string
+  userId: number | null
 }

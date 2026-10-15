@@ -8,6 +8,13 @@
       "when": 1790109221514,
       "tag": "0000_jittery_wind_dancer",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792099892132,
+      "tag": "0001_fantastic_tyrannus",
+      "breakpoints": true
     }
   ]
 }
