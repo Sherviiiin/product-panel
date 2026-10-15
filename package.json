@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "pnpm --filter web dev",
     "build": "pnpm --filter web build",
+    "preview": "pnpm --filter web preview",
     "typecheck": "pnpm --filter web exec tsc --noEmit && pnpm --filter @repo/db exec tsc --noEmit",
     "db:migrate": "pnpm --filter @repo/db db:migrate",
     "db:seed": "pnpm --filter @repo/db db:seed"

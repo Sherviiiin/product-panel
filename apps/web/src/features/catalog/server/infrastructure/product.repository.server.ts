@@ -745,33 +745,30 @@ export class DrizzleProductRepository
         }),
       )
 
-    const totalRows =
-      await db
-        .select({
-          id:
-            products.id,
-        })
-        .from(products)
-        .leftJoin(
-          sellerProducts,
-          eq(
-            sellerProducts.productId,
-            products.id,
-          ),
-        )
-        .where(where)
-        .groupBy(
-          products.id,
-        )
-        .having(
-          priceFilter,
-        )
+    const filteredProducts = db
+      .select({
+        id: products.id,
+      })
+      .from(products)
+      .leftJoin(
+        sellerProducts,
+        eq(sellerProducts.productId, products.id),
+      )
+      .where(where)
+      .groupBy(products.id)
+      .having(priceFilter)
+      .as("filtered_products")
+
+    const [totalRow] = await db
+      .select({
+        total: count(),
+      })
+      .from(filteredProducts)
 
     return {
       items,
 
-      total:
-        totalRows.length,
+      total: totalRow?.total ?? 0,
     }
   }
 
