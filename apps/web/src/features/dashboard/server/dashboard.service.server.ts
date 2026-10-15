@@ -4,52 +4,56 @@ import type {
   UpdateSellerDashboardProfileInput, UpdateUserDashboardProfileInput,
 } from "../dashboard.schema";
 
-import { DashboardRepository } from "./dashboard.repository.server";
-
-const repository = new DashboardRepository();
+import type { UserProductsRepository } from "./repositories/user-products.repository.server"
+import type { SellerProductsRepository } from "./repositories/seller-products.repository.server"
+import type { DashboardProfileRepository } from "./repositories/dashboard-profile.repository.server"
 
 export class DashboardService {
+  constructor(
+    private readonly userProductsRepo: UserProductsRepository,
+    private readonly sellerProductsRepo: SellerProductsRepository,
+    private readonly profileRepo: DashboardProfileRepository,
+  ) {}
+
   async getUserProducts(userId: number, input: UserDashboardProductsInput) {
-    return repository.getUserProducts(userId, input);
+    return this.userProductsRepo.getUserProducts(userId, input);
   }
 
   async getSellerProducts(userId: number, input: SellerDashboardProductsInput) {
-    return repository.getSellerProducts(userId, input);
+    return this.sellerProductsRepo.getSellerProducts(userId, input);
   }
 
   async updateSellerListing(userId: number, input: UpdateSellerListingInput) {
-    return repository.updateSellerListing(userId, input);
+    return this.sellerProductsRepo.updateSellerListing(userId, input);
   }
 
   async deleteSellerListing(userId: number, listingId: number) {
-    return repository.deleteSellerListing(userId, listingId);
+    return this.sellerProductsRepo.deleteSellerListing(userId, listingId);
   }
 
   async searchProductsForSeller(userId: number, search: string) {
-    return repository.searchProductsForSeller(userId, search);
+    return this.sellerProductsRepo.searchProductsForSeller(userId, search);
   }
 
   async createSellerListing(userId: number, input: CreateSellerListingInput) {
-    return repository.createSellerListing(userId, input);
+    return this.sellerProductsRepo.createSellerListing(userId, input);
   }
 
   async createSellerProduct(userId: number, input: CreateSellerProductInput) {
-    return repository.createSellerProduct(userId, input);
+    return this.sellerProductsRepo.createSellerProduct(userId, input);
   }
 
   async getProductCategories() {
-    return repository.getProductCategories();
+    return this.sellerProductsRepo.getProductCategories();
   }
 
   getProfile(userId: number) {
-    return repository.getProfile(userId);
+    return this.profileRepo.getProfile(userId);
   }
   updateUserProfile(userId: number, input: UpdateUserDashboardProfileInput) {
-    return repository.updateUserProfile(userId, input);
+    return this.profileRepo.updateUserProfile(userId, input);
   }
   updateSellerProfile(userId: number, input: UpdateSellerDashboardProfileInput) {
-    return repository.updateSellerProfile(userId, input);
+    return this.profileRepo.updateSellerProfile(userId, input);
   }
 }
-
-export const dashboardService = new DashboardService();

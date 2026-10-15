@@ -14,7 +14,7 @@ import {
 
 import { useAuthSession } from "@/features/auth/server/auth.session.server";
 
-import { dashboardService } from "../dashboard.service.server";
+import { dashboardService } from "../dashboard.composition.server";
 
 export const getUserDashboardProducts = createServerFn({ method: "GET" })
   .validator(userDashboardProductsSchema)

@@ -12,17 +12,6 @@ import {
 
 const DASHBOARD_ROOT_KEY = ["dashboard"] as const;
 
-//export const dashboardKeys = {
-//  all: ["dashboard"] as const,
-//
-//  userProducts: (input: UserDashboardProductsInput) => [...dashboardKeys.all, "user-products", input] as const,
-//
-//  sellerProducts: (input: SellerDashboardProductsInput) => [...dashboardKeys.all, "seller-products", input] as const,
-//
-//  sellerProductSearch: (search: string) => [...dashboardKeys.all, "seller-product-search", search] as const,
-//
-//  //categories: [...dashboardKeys.all, "categories"] as const,
-//}
 export const dashboardKeys = {
   all: DASHBOARD_ROOT_KEY,
 
