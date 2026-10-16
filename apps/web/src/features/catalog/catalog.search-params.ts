@@ -48,7 +48,7 @@ export function toProductsListInput(search: Partial<ProductSearchParams>): Produ
     minPrice: search.minPrice ?? undefined,
     maxPrice: search.maxPrice ?? undefined,
 
-    sortBy: search.sortBy ?? undefined, //"viewsCount",
-    sortOrder: search.sortOrder ?? undefined, //"desc",
+    sortBy: search.sortBy ?? undefined,
+    sortOrder: search.sortOrder ?? undefined,
   });
 }

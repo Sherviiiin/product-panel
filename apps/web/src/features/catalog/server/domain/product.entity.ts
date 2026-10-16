@@ -6,5 +6,4 @@ export interface ProductEntity {
   likesCount: number;
   viewsCount: number;
   savesCount: number;
-  //createdAt?: Date
 }

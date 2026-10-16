@@ -7,9 +7,6 @@ export class GetProduct {
   async execute(id: number, userId?: number): Promise<ProductDetail | null> {
     const product = await this.productRepository.findById(id);
 
-    //if (!product) {
-    //  throw new Error("Product not found")
-    //}
     if (!product) {
       return null;
     }
