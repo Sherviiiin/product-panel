@@ -1,5 +1,5 @@
-import { sql } from "drizzle-orm"
-import { pgTable, serial, integer, unique, uniqueIndex, uuid, check, } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
+import { pgTable, serial, integer, unique, uniqueIndex, uuid, check } from "drizzle-orm/pg-core";
 import { products } from "./products";
 import { users } from "./users";
 
@@ -9,8 +9,7 @@ export const productViews = pgTable(
   {
     id: serial("id").primaryKey(),
 
-    userId: integer("user_id")
-      .references(() => users.id),
+    userId: integer("user_id").references(() => users.id),
 
     guestId: uuid("guest_id"),
 
@@ -32,7 +31,7 @@ export const productViews = pgTable(
       sql`${table.userId} IS NOT NULL OR ${table.guestId} IS NOT NULL`,
     ),
   ],
-)
+);
 
 // Table product-likes
 export const productLikes = pgTable(

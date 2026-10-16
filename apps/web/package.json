@@ -9,7 +9,10 @@
     "dev": "vite dev --port 3000",
     "generate-routes": "tsr generate",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:integration": "vitest run --config vitest.integration.config.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
@@ -43,7 +46,8 @@
     "tailwindcss": "^4.3.3",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",
-    "vite": "^8.0.0"
+    "vite": "^8.0.0",
+    "vitest": "5.0.4"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

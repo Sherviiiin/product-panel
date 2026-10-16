@@ -1,12 +1,26 @@
 import {
-  and, asc, categories, count, db, desc, eq, ilike, isNull,
-  productCategories, products, productSpecs,
-  sellerProducts, sellerProfiles
+  and,
+  asc,
+  categories,
+  count,
+  db,
+  desc,
+  eq,
+  ilike,
+  isNull,
+  productCategories,
+  products,
+  productSpecs,
+  sellerProducts,
+  sellerProfiles,
 } from "@repo/db";
 
 import type {
-  CreateSellerListingInput, CreateSellerProductInput,
-  SellerDashboardProductsInput, SellerProductsResult, UpdateSellerListingInput,
+  CreateSellerListingInput,
+  CreateSellerProductInput,
+  SellerDashboardProductsInput,
+  SellerProductsResult,
+  UpdateSellerListingInput,
 } from "../../dashboard.schema";
 
 export class SellerProductsRepository {

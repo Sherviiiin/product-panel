@@ -62,10 +62,7 @@ export interface ProductRepository {
     isSaved: boolean;
     savesCount: number;
   }>;
-  recordView(
-    productId: number,
-    viewer: ViewIdentity,
-  ): Promise<{ viewsCount: number }>;
+  recordView(productId: number, viewer: ViewIdentity): Promise<{ viewsCount: number }>;
 
   searchProducts(params: ProductSearchParams): Promise<{
     items: ProductSearchItem[];
@@ -74,6 +71,6 @@ export interface ProductRepository {
 }
 
 export type ViewIdentity = {
-  guestId: string
-  userId: number | null
-}
+  guestId: string;
+  userId: number | null;
+};

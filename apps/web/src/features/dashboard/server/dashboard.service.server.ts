@@ -1,12 +1,16 @@
 import type {
-  SellerDashboardProductsInput, UserDashboardProductsInput, UpdateSellerListingInput,
-  CreateSellerListingInput, CreateSellerProductInput,
-  UpdateSellerDashboardProfileInput, UpdateUserDashboardProfileInput,
+  SellerDashboardProductsInput,
+  UserDashboardProductsInput,
+  UpdateSellerListingInput,
+  CreateSellerListingInput,
+  CreateSellerProductInput,
+  UpdateSellerDashboardProfileInput,
+  UpdateUserDashboardProfileInput,
 } from "../dashboard.schema";
 
-import type { UserProductsRepository } from "./repositories/user-products.repository.server"
-import type { SellerProductsRepository } from "./repositories/seller-products.repository.server"
-import type { DashboardProfileRepository } from "./repositories/dashboard-profile.repository.server"
+import type { UserProductsRepository } from "./repositories/user-products.repository.server";
+import type { SellerProductsRepository } from "./repositories/seller-products.repository.server";
+import type { DashboardProfileRepository } from "./repositories/dashboard-profile.repository.server";
 
 export class DashboardService {
   constructor(

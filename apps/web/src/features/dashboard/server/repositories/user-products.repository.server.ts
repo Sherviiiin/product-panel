@@ -1,11 +1,22 @@
 import {
-  and, asc, count, db, desc, eq, ilike, max, min, sql,
-  productLikes, products, productSaves, productViews, sellerProducts
+  and,
+  asc,
+  count,
+  db,
+  desc,
+  eq,
+  ilike,
+  max,
+  min,
+  sql,
+  productLikes,
+  products,
+  productSaves,
+  productViews,
+  sellerProducts,
 } from "@repo/db";
 
-import type {
-  DashboardProductsResult, UserDashboardProductsInput
-} from "../../dashboard.schema";
+import type { DashboardProductsResult, UserDashboardProductsInput } from "../../dashboard.schema";
 
 export class UserProductsRepository {
   // 1

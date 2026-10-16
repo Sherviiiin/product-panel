@@ -1,10 +1,9 @@
-import {
-  asc, db, eq,
-  sellerProfiles, cities, sellerTypes, userProfiles, users,
-} from "@repo/db";
+import { asc, db, eq, sellerProfiles, cities, sellerTypes, userProfiles, users } from "@repo/db";
 
 import type {
-  DashboardProfile, UpdateSellerDashboardProfileInput, UpdateUserDashboardProfileInput,
+  DashboardProfile,
+  UpdateSellerDashboardProfileInput,
+  UpdateUserDashboardProfileInput,
 } from "../../dashboard.schema";
 
 export class DashboardProfileRepository {

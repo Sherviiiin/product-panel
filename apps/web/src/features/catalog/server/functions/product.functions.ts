@@ -10,7 +10,7 @@ import { RecordProductView } from "../application/record-product-view";
 
 import { useAuthSession } from "@/features/auth/server/auth.session.server";
 
-import { getOrCreateGuestId } from "../guest-viewer.server"
+import { getOrCreateGuestId } from "../guest-viewer.server";
 
 // Dipendency Injections
 const repository = new DrizzleProductRepository();
@@ -75,10 +75,10 @@ export const recordProductView = createServerFn({
 })
   .validator(getProductSchema)
   .handler(async ({ data }) => {
-    const session = await useAuthSession()
+    const session = await useAuthSession();
 
     return recordProductViewUseCase.execute(data.id, {
       guestId: getOrCreateGuestId(),
       userId: session.data.userId ?? null,
-    })
-  })
+    });
+  });
