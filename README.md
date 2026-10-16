@@ -12,7 +12,7 @@ The project is built as a monorepo using pnpm workspaces and follows a feature-b
 
 ## Features
 
-## Authentication
+### Authentication
 
 - User registration and login
 - Session-based authentication
@@ -20,7 +20,7 @@ The project is built as a monorepo using pnpm workspaces and follows a feature-b
 
 ---
 
-## Product Catalog
+### Product Catalog
 
 - Product listing
 - Product search
@@ -33,7 +33,7 @@ The project is built as a monorepo using pnpm workspaces and follows a feature-b
 
 ---
 
-## User Dashboard
+### User Dashboard
 
 - View saved products
 - View liked products
@@ -45,7 +45,7 @@ The project is built as a monorepo using pnpm workspaces and follows a feature-b
 
 ---
 
-## Seller Dashboard
+### Seller Dashboard
 
 - View seller listed products
 - Add existing products to seller store
@@ -108,7 +108,6 @@ feature/
 
 - React
 - TypeScript
-- TanStack Start
 - TanStack Router
 - TanStack Query
 - TanStack Form
@@ -185,52 +184,130 @@ Database
 
 ---
 
-# Development
+# Development Setup
 
-Install dependencies from the project root:
+## Prerequisites
+
+- Node.js
+- pnpm
+- Docker and Docker Compose
+
+## 1. Install dependencies
+
+Run from the project root:
 
 ```bash
 pnpm install
 ```
 
-Start the PostgreSQL database using Docker.
+## 2. Configure environment variables
 
-Run this command from the project root directory:
+Create these three files from their examples:
+
+- `.env`
+- `apps/web/.env`
+- `packages/db/.env`
+
+On Windows PowerShell:
+
+```powershell
+Copy-Item .env.example .env
+Copy-Item apps/web/.env.example apps/web/.env
+Copy-Item packages/db/.env.example packages/db/.env
+```
+
+On macOS/Linux:
+
+```bash
+cp .env.example .env
+cp apps/web/.env.example apps/web/.env
+cp packages/db/.env.example packages/db/.env
+```
+
+Update the credentials and secrets before continuing.
+
+The DATABASE_URL values must match the PostgreSQL credentials and database name defined in the root .env file.
+SESSION_SECRET must be at least 32 characters.
+
+## 3. Start PostgreSQL
 
 ```bash
 docker compose up -d
 ```
 
-After the database container is running, run database migration and seed commands from the database package directory.
+PostgreSQL runs on localhost:5432.
+pgAdmin is available at http://localhost:5050.
 
-Navigate to:
-
-```bash
-cd packages/db
-```
-
-Run database migration:
+## 4. Run database migrations
 
 ```bash
 pnpm db:migrate
 ```
 
-Run database seed:
+## 5. Seed development data (optional)
+
+WARNING: The seed script deletes existing users,
+products, and related records before recreating demo data.
+
+Run it ONLY on a disposable development database.
+Never run it against production or valuable existing data.
 
 ```bash
 pnpm db:seed
 ```
 
-After preparing the database, navigate to the web application directory:
-
-```bash
-cd ../../apps/web
-```
-
-Run the development server:
+## 6. Start the application
 
 ```bash
 pnpm dev
+```
+
+Open http://localhost:3000.
+
+# Code Quality and Tests
+
+Run these commands from the project root.
+
+TypeScript:
+
+```bash
+pnpm typecheck
+```
+
+Biome:
+
+```bash
+pnpm exec biome lint .
+```
+
+Unit tests:
+
+```bash
+pnpm --filter web test
+```
+
+Integration tests:
+
+```bash
+pnpm --filter web test:integration
+```
+
+Integration tests require a running PostgreSQL database.
+Auth integration tests create, update, and delete
+temporary database records.
+
+Do not run integration tests against production.
+
+Production build:
+
+```bash
+pnpm build
+```
+
+Preview the production build locally:
+
+```bash
+pnpm preview
 ```
 
 ---
